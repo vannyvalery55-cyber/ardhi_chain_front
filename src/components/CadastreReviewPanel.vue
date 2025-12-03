@@ -18,8 +18,8 @@
                     <q-item-label caption>Statut: {{ item.status }} | ID Soumission: {{ item.id }}</q-item-label>
                 </q-item-section>
                 <q-item-section side>
-                    <q-btn-dropdown 
-                        color="teal-7" 
+                    <q-btn-dropdown
+                        color="teal-7"
                         label="Action"
                         flat
                     >
@@ -51,5 +51,5 @@ const pendingSubmissions = ref([
 ]);
 
 // Les événements 'certify' et 'reject' seraient envoyés à un backend.
-const emits = defineEmits(['certify', 'reject']);
+// const emits = defineEmits(['certify', 'reject']);
 </script>

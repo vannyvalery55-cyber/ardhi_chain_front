@@ -1,18 +1,18 @@
 <template>
-  <q-card 
-    flat 
-    bordered 
+  <q-card
+    flat
+    bordered
     class="bg-white shadow-10 search-widget q-pa-md q-ma-md"
     style="max-width: 900px; width: 100%; border-radius: 12px; transform: translateY(50px);"
   >
     <div class="row q-col-gutter-sm">
-      
+
       <div class="col-12 col-md-5">
-        <q-input 
+        <q-input
           :model-value="searchTerm"
-          @update:model-value="$emit('update:searchTerm', $event)" 
-          outlined 
-          placeholder="Localisation (Himbi, Ndosho...) ou mot-clé" 
+          @update:model-value="$emit('update:searchTerm', $event)"
+          outlined
+          placeholder="Localisation (Himbi, Ndosho...) ou mot-clé"
           bg-color="grey-1"
         >
           <template v-slot:prepend>
@@ -22,10 +22,10 @@
       </div>
 
       <div class="col-12 col-md-4">
-        <q-select 
-          v-model="propertyType" 
-          :options="typeOptions" 
-          outlined 
+        <q-select
+          v-model="propertyType"
+          :options="typeOptions"
+          outlined
           placeholder="Type de bien"
           bg-color="grey-1"
         >
@@ -36,11 +36,11 @@
       </div>
 
       <div class="col-12 col-md-3">
-        <q-btn 
-          label="Rechercher" 
-          icon="search" 
-          color="teal-7" 
-          class="full-width" 
+        <q-btn
+          label="Rechercher"
+          icon="search"
+          color="teal-7"
+          class="full-width"
           size="lg"
           @click="$emit('search')"
         />
@@ -50,20 +50,21 @@
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits } from 'vue';
+import { ref } from 'vue';
 
-const props = defineProps({
-  searchTerm: String,
-});
+// Supprimez `defineProps` et `defineEmits` si non utilisés
+// const props = defineProps({
+//   searchTerm: String,
+// });
+// const emits = defineEmits(['update:searchTerm', 'search']);
 
-const emits = defineEmits(['update:searchTerm', 'search']);
-
+// À la place, utilisez directement avec le v-model et @search dans le template
 const propertyType = ref('Tout type');
 const typeOptions = [
-    'Tout type',
-    'Maison',
-    'Appartement',
-    'Parcelle',
+  'Tout type',
+  'Maison',
+  'Appartement',
+  'Parcelle'
 ];
 </script>
 
