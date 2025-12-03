@@ -1,81 +1,32 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
+    
+    <q-header elevated class="bg-deep-purple-7">
       <q-toolbar>
-        <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
+        
+        <q-toolbar-title 
+          class="q-ml-md cursor-pointer text-weight-bolder" 
+          @click="$router.push({ name: 'home' })"
+        >
+          ARDHI\_CHAIN
+        </q-toolbar-title>
 
-        <q-toolbar-title> Quasar App </q-toolbar-title>
+        <q-space />
 
-        <div>Quasar v{{ $q.version }}</div>
+        <q-btn flat label="Accueil" :to="{ name: 'home' }" icon="home" class="q-mr-sm" />
+        <q-btn flat label="Ajouter Bien" :to="{ name: 'add-property' }" icon="add_business" class="q-mr-sm" />
+        <q-btn flat label="Mon Compte" :to="{ name: 'account' }" icon="account_circle" />
+
       </q-toolbar>
     </q-header>
-
-    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
-      <q-list>
-        <q-item-label header> Essential Links </q-item-label>
-
-        <EssentialLink v-for="link in linksList" :key="link.title" v-bind="link" />
-      </q-list>
-    </q-drawer>
 
     <q-page-container>
       <router-view />
     </q-page-container>
-  </q-layout>
+
+    </q-layout>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import EssentialLink from 'components/EssentialLink.vue'
-
-const linksList = [
-  {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev',
-  },
-  {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework',
-  },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev',
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev',
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev',
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev',
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev',
-  },
-]
-
-const leftDrawerOpen = ref(false)
-
-function toggleLeftDrawer() {
-  leftDrawerOpen.value = !leftDrawerOpen.value
-}
+// Pas d'importations nécessaires si le FooterBar et le Drawer sont retirés.
 </script>
