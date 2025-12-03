@@ -1,167 +1,357 @@
 <template>
-  <q-page class="q-pa-md">
-    
-    <q-btn 
-      icon="arrow_back" 
-      label="Retour au Catalogue" 
-      flat 
-      color="deep-purple-7" 
-      class="q-mb-lg"
-      @click="$router.push('/')" 
-    />
+  <q-page class="property-details-page q-pa-lg">
+    <div v-if="loading" class="text-center q-py-xl">
+      <q-spinner-gears color="primary" size="3em" />
+      <p class="q-mt-md">Chargement de la propriété...</p>
+    </div>
 
-    <q-card v-if="property" flat bordered class="q-pa-lg">
-      
-      <div class="row q-col-gutter-lg">
-        
-        <div class="col-12 col-lg-8">
-          
-          <div class="text-h4 text-dark q-mb-xs text-weight-bold">{{ property.name }}</div>
-          <div class="text-subtitle1 text-teal-7 q-mb-md flex items-center">
-            <q-icon name="location_on" class="q-mr-sm" /> {{ property.location }}
-          </div>
-          
-          <q-img
-            :src="property.image || 'https://via.placeholder.com/800x450/4CAF50/ffffff?text=Image+Principale+du+Bien'"
-            spinner-color="white"
-            class="q-mb-md"
-            style="border-radius: 8px;"
-          />
-          
-          <q-separator class="q-my-md" />
-          <div class="text-h6 text-deep-purple-8 q-mb-sm">Description Complète</div>
-          <p class="text-body2 text-grey-8">{{ property.description }}</p>
-          
-          <div class="row q-col-gutter-md q-mt-md">
-            <div class="col-6 col-sm-3">
-              <q-card flat bordered class="q-pa-sm text-center">
-                <q-icon name="aspect_ratio" color="teal-6" size="sm" />
-                <div class="text-caption text-weight-bold">Surface</div>
-                <div class="text-body2 text-dark">{{ property.surface }}</div>
-              </q-card>
-            </div>
-            <div class="col-6 col-sm-3">
-              <q-card flat bordered class="q-pa-sm text-center">
-                <q-icon name="apartment" color="teal-6" size="sm" />
-                <div class="text-caption text-weight-bold">Type</div>
-                <div class="text-body2 text-dark">{{ property.category }}</div>
-              </q-card>
-            </div>
-            <div class="col-6 col-sm-3">
-              <q-card flat bordered class="q-pa-sm text-center">
-                <q-icon name="map" color="teal-6" size="sm" />
-                <div class="text-caption text-weight-bold">Type Transaction</div>
-                <div class="text-body2 text-dark">{{ property.type }}</div>
-              </q-card>
-            </div>
-            <div class="col-6 col-sm-3">
-              <q-card flat bordered class="q-pa-sm text-center">
-                <q-icon name="qr_code" color="deep-purple-7" size="sm" />
-                <div class="text-caption text-weight-bold">ID NFT</div>
-                <div class="text-body2 text-dark">{{ property.id }}</div>
-              </q-card>
-            </div>
-          </div>
+    <div v-else-if="property" class="max-width-1200 mx-auto">
+      <!-- Bouton retour -->
+      <q-btn
+        flat
+        color="primary"
+        icon="arrow_back"
+        label="Retour"
+        @click="$router.back()"
+        class="q-mb-md"
+      />
 
-          <q-separator class="q-my-md" />
-          <div class="text-h6 text-deep-purple-8 q-mb-sm">Localisation Géographique (Carte)</div>
-          <MapView :properties="[property]" style="height: 350px; border-radius: 8px;" class="q-mt-md" />
-
-        </div>
-
-        <div class="col-12 col-lg-4">
-          
-          <q-card class="bg-deep-purple-1 q-pa-md q-mb-lg shadow-2">
-            <div class="text-h5 text-deep-purple-8 text-weight-bolder">{{ property.price }}</div>
-            <div class="text-caption text-grey-7 q-mb-md">{{ property.type === 'Vente' ? 'Prix de Vente (en ADA)' : 'Prix Mensuel' }}</div>
-            <q-btn 
-              label="Procéder à l'Achat NFT" 
-              icon="token" 
-              color="deep-purple-7" 
-              class="full-width q-mb-sm" 
-              @click="console.log('Action: Lancer Transaction Cardano')" 
-            />
-          </q-card>
-
-          <q-card flat bordered style="height: 550px;">
-            <q-tabs
-              v-model="tab"
-              dense
-              class="text-grey-7"
-              active-color="deep-purple-7"
-              indicator-color="deep-purple-7"
-              align="justify"
-              narrow-indicator
+      <!-- Galerie d'images -->
+      <div class="property-gallery q-mb-lg">
+        <div class="row q-col-gutter-md">
+          <div class="col-12">
+            <q-img
+              :src="mainImage"
+              :alt="property.name"
+              class="main-image"
+              :ratio="16/9"
             >
-              <q-tab name="chat" icon="chat" label="Chat Privé" />
-              <q-tab name="nft" icon="verified_user" label="Certification NFT" />
-            </q-tabs>
+              <div class="absolute-top-right q-ma-sm">
+                <q-badge :color="property.type_offre === 'vente' ? 'deep-purple-6' : 'blue-6'">
+                  {{ property.type_offre === 'vente' ? 'À vendre' : 'À louer' }}
+                </q-badge>
+              </div>
+            </q-img>
+          </div>
 
-            <q-separator />
-
-            <q-tab-panels v-model="tab" animated style="height: calc(100% - 48px);">
-              
-              <q-tab-panel name="chat" class="q-pa-none full-height">
-                <ChatInterface 
-                  contactName="Propriétaire Certifié" 
-                  :propertyId="property.id"
+          <div v-if="property.original.images && property.original.images.length > 1"
+               class="col-12">
+            <div class="row q-col-gutter-xs">
+              <div
+                v-for="(image, index) in property.original.images.slice(0, 4)"
+                :key="index"
+                class="col-3"
+              >
+                <q-img
+                  :src="getImageUrl(image)"
+                  :alt="`Image ${index + 1}`"
+                  class="thumbnail"
+                  :ratio="1"
+                  @click="mainImage = getImageUrl(image)"
                 />
-              </q-tab-panel>
-
-              <q-tab-panel name="nft" class="q-pa-md">
-                <div class="text-h6 text-teal-7 q-mb-sm flex items-center">
-                    <q-icon name="verified_user" class="q-mr-sm" /> Titre ARDHI Certifié
-                </div>
-                <q-list dense>
-                    <q-item>
-                        <q-item-section avatar><q-icon name="done" color="light-blue-7" /></q-item-section>
-                        <q-item-section>Titre Immobilier Tokénisé (NFT)</q-item-section>
-                    </q-item>
-                    <q-item>
-                        <q-item-section avatar><q-icon name="done" color="light-blue-7" /></q-item-section>
-                        <q-item-section>Identité Vendeur Vérifiée (DID)</q-item-section>
-                    </q-item>
-                    <q-item>
-                        <q-item-section avatar><q-icon name="done" color="light-blue-7" /></q-item-section>
-                        <q-item-section>Historique de Propriété Immuable</q-item-section>
-                    </q-item>
-                    <q-item-label caption class="q-mt-md">
-                        Le jeton est sécurisé via le **Policy ID** sur la Blockchain Cardano.
-                    </q-item-label>
-                </q-list>
-              </q-tab-panel>
-            
-            </q-tab-panels>
-          </q-card>
-          
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </q-card>
 
-    <q-card v-else flat bordered class="q-pa-lg q-mt-lg text-center">
-        <q-icon name="error" color="red-6" size="lg" />
-        <div class="text-h5 q-mt-md">Propriété non trouvée.</div>
-        <div class="text-body1 q-mt-sm">Veuillez vérifier l'identifiant du bien.</div>
-    </q-card>
+      <!-- Informations principales -->
+      <div class="row q-col-gutter-lg">
+        <div class="col-md-8">
+          <div class="property-main-info">
+            <h1 class="text-h4 text-weight-bold q-mb-sm">{{ property.name }}</h1>
 
+            <div class="row items-center q-mb-md">
+              <q-icon name="location_on" color="primary" class="q-mr-sm" />
+              <span class="text-h6 text-grey-8">{{ property.location }}</span>
+              <q-chip v-if="property.standing" :color="standingColor" text-color="white" class="q-ml-sm">
+                {{ getStandingLabel(property.standing) }}
+              </q-chip>
+            </div>
+
+            <div class="text-h5 text-primary text-weight-bold q-mb-lg">
+              {{ property.price }}
+            </div>
+
+            <q-card class="q-mb-lg">
+              <q-card-section>
+                <h3 class="text-h6 q-mb-md">Description</h3>
+                <p class="text-body1">{{ property.description }}</p>
+              </q-card-section>
+            </q-card>
+
+            <!-- Caractéristiques détaillées -->
+            <q-card class="q-mb-lg">
+              <q-card-section>
+                <h3 class="text-h6 q-mb-md">Caractéristiques</h3>
+                <div class="row q-col-gutter-md">
+                  <div class="col-md-6">
+                    <q-list>
+                      <q-item>
+                        <q-item-section avatar>
+                          <q-icon name="square_foot" />
+                        </q-item-section>
+                        <q-item-section>
+                          <q-item-label caption>Superficie</q-item-label>
+                          <q-item-label>{{ property.area }}</q-item-label>
+                        </q-item-section>
+                      </q-item>
+
+                      <q-item>
+                        <q-item-section avatar>
+                          <q-icon name="bed" />
+                        </q-item-section>
+                        <q-item-section>
+                          <q-item-label caption>Chambres</q-item-label>
+                          <q-item-label>{{ property.original.nombre_chambres || 0 }}</q-item-label>
+                        </q-item-section>
+                      </q-item>
+
+                      <q-item>
+                        <q-item-section avatar>
+                          <q-icon name="bathtub" />
+                        </q-item-section>
+                        <q-item-section>
+                          <q-item-label caption>Salles de bain</q-item-label>
+                          <q-item-label>{{ property.original.nombre_salles_bain || 0 }}</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </div>
+
+                  <div class="col-md-6">
+                    <q-list>
+                      <q-item>
+                        <q-item-section avatar>
+                          <q-icon name="home" />
+                        </q-item-section>
+                        <q-item-section>
+                          <q-item-label caption>Type</q-item-label>
+                          <q-item-label>{{ formatHouseType(property.type_maison) }}</q-item-label>
+                        </q-item-section>
+                      </q-item>
+
+                      <q-item>
+                        <q-item-section avatar>
+                          <q-icon name="construction" />
+                        </q-item-section>
+                        <q-item-section>
+                          <q-item-label caption>État</q-item-label>
+                          <q-item-label>{{ formatEtat(property.etat) }}</q-item-label>
+                        </q-item-section>
+                      </q-item>
+
+                      <q-item>
+                        <q-item-section avatar>
+                          <q-icon name="date_range" />
+                        </q-item-section>
+                        <q-item-section>
+                          <q-item-label caption>Ajoutée le</q-item-label>
+                          <q-item-label>{{ formatDate(property.original.date_creation) }}</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </div>
+                </div>
+              </q-card-section>
+            </q-card>
+          </div>
+        </div>
+
+        <!-- Sidebar avec contact et infos -->
+        <div class="col-md-4">
+          <q-card class="sticky-sidebar">
+            <q-card-section>
+              <h3 class="text-h6 q-mb-md">Intéressé par cette propriété ?</h3>
+
+              <div v-if="property.original.proprietaire" class="q-mb-lg">
+                <div class="text-subtitle2 q-mb-xs">Propriétaire</div>
+                <div class="row items-center">
+                  <q-avatar size="40px" class="q-mr-sm">
+                    <q-icon name="person" size="24px" />
+                  </q-avatar>
+                  <div>
+                    <div class="text-weight-medium">{{ property.original.proprietaire.nom }}</div>
+                    <div class="text-caption text-grey">
+                      {{ property.original.proprietaire.type || 'Propriétaire' }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="q-mb-lg">
+                <div class="text-subtitle2 q-mb-xs">Informations parcelle</div>
+                <div v-if="property.original.parcelle" class="text-body2">
+                  <div><strong>Titre :</strong> {{ property.original.parcelle.titre }}</div>
+                  <div><strong>Quartier :</strong> {{ property.original.parcelle.quartier }}</div>
+                  <div><strong>Avenue :</strong> {{ property.original.parcelle.avenue }}</div>
+                  <div><strong>Numéro :</strong> {{ property.original.parcelle.numero }}</div>
+                  <div><strong>Superficie parcelle :</strong> {{ property.original.parcelle.superficie }} m²</div>
+                </div>
+              </div>
+
+              <q-btn
+                color="primary"
+                :label="property.type_offre === 'vente' ? 'Demander une visite' : 'Demander à louer'"
+                class="full-width q-mb-sm"
+                size="lg"
+              />
+
+              <q-btn
+                outline
+                color="primary"
+                label="Contacter le propriétaire"
+                class="full-width"
+              />
+            </q-card-section>
+          </q-card>
+        </div>
+      </div>
+    </div>
+
+    <div v-else class="text-center q-py-xl">
+      <q-icon name="error" size="4em" color="negative" />
+      <div class="text-h6 q-mt-md">Propriété non trouvée</div>
+      <q-btn
+        color="primary"
+        label="Retour à l'accueil"
+        @click="$router.push('/')"
+        class="q-mt-md"
+      />
+    </div>
   </q-page>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { useRoute } from 'vue-router';
-import MapView from 'src/components/MapView.vue'; 
-import ChatInterface from 'src/components/ChatInterface.vue'; // NOUVEL IMPORT
-import { mockProperties } from 'src/data/properties.js'; 
+import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { usePropertiesStore } from 'src/stores/properties'
 
-const route = useRoute();
-const propertyId = route.params.id;
+const route = useRoute()
+const propertiesStore = usePropertiesStore()
+const loading = ref(true)
+const property = ref(null)
+const mainImage = ref('')
 
-// Onglet actif par défaut
-const tab = ref('chat');
+const getImageUrl = (imagePath) => {
+  if (!imagePath) return '/images/default-house.jpg'
+  if (imagePath.startsWith('http')) return imagePath
+  return `http://localhost:3000${imagePath}`
+}
 
-// Logique pour trouver la propriété correspondant à l'ID
-const property = computed(() => {
-  return mockProperties.find(p => p.id === propertyId);
-});
+const standingColor = computed(() => {
+  switch(property.value?.standing) {
+    case 'luxe': return 'amber'
+    case 'haut_de_gamme': return 'orange'
+    case 'standard': return 'green'
+    case 'economique': return 'blue'
+    default: return 'grey'
+  }
+})
+
+const getStandingLabel = (standing) => {
+  switch(standing) {
+    case 'luxe': return 'Luxe'
+    case 'haut_de_gamme': return 'Haut de gamme'
+    case 'standard': return 'Standard'
+    case 'economique': return 'Économique'
+    default: return standing || 'Standard'
+  }
+}
+
+const formatHouseType = (type) => {
+  const types = {
+    'villa': 'Villa',
+    'appartement': 'Appartement',
+    'duplex': 'Duplex',
+    'studio': 'Studio',
+    'fermette': 'Fermette',
+    'contemporaine': 'Contemporaine'
+  }
+  return types[type] || type
+}
+
+const formatEtat = (etat) => {
+  const etats = {
+    'neuf': 'Neuf',
+    'bon_etat': 'Bon état',
+    'renovation': 'À rénover',
+    'ancien': 'Ancien'
+  }
+  return etats[etat] || etat
+}
+
+const formatDate = (dateString) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return date.toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  })
+}
+
+onMounted(async () => {
+  try {
+    const propertyId = parseInt(route.params.id)
+
+    // Chercher d'abord dans les données déjà chargées
+    const existingProperty = propertiesStore.formattedProperties.find(p => p.id === propertyId)
+
+    if (existingProperty) {
+      property.value = existingProperty
+      // Définir l'image principale
+      if (existingProperty.original.images && existingProperty.original.images.length > 0) {
+        mainImage.value = getImageUrl(existingProperty.original.images[0])
+      } else {
+        mainImage.value = '/images/default-house.jpg'
+      }
+    } else {
+      // Charger depuis l'API
+      const response = await propertiesStore.fetchHouseById(propertyId)
+      property.value = response
+    }
+  } catch (error) {
+    console.error('Erreur chargement propriété:', error)
+  } finally {
+    loading.value = false
+  }
+})
 </script>
+
+<style scoped>
+.property-details-page {
+  background-color: #f8f9fa;
+}
+
+.max-width-1200 {
+  max-width: 1200px;
+}
+
+.main-image {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.thumbnail {
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.thumbnail:hover {
+  transform: scale(1.05);
+}
+
+.sticky-sidebar {
+  position: sticky;
+  top: 20px;
+  border-radius: 12px;
+}
+
+@media (max-width: 768px) {
+  .sticky-sidebar {
+    position: static;
+  }
+}
+</style>
