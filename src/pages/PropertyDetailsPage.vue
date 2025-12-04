@@ -20,12 +20,7 @@
       <div class="property-gallery q-mb-lg">
         <div class="row q-col-gutter-md">
           <div class="col-12">
-            <q-img
-              :src="mainImage"
-              :alt="property.name"
-              class="main-image"
-              :ratio="16/9"
-            >
+            <q-img :src="mainImage" :alt="property.name" class="main-image" :ratio="16 / 9">
               <div class="absolute-top-right q-ma-sm">
                 <q-badge :color="property.type_offre === 'vente' ? 'deep-purple-6' : 'blue-6'">
                   {{ property.type_offre === 'vente' ? 'À vendre' : 'À louer' }}
@@ -34,8 +29,10 @@
             </q-img>
           </div>
 
-          <div v-if="property.original.images && property.original.images.length > 1"
-               class="col-12">
+          <div
+            v-if="property.original.images && property.original.images.length > 1"
+            class="col-12"
+          >
             <div class="row q-col-gutter-xs">
               <div
                 v-for="(image, index) in property.original.images.slice(0, 4)"
@@ -64,7 +61,12 @@
             <div class="row items-center q-mb-md">
               <q-icon name="location_on" color="primary" class="q-mr-sm" />
               <span class="text-h6 text-grey-8">{{ property.location }}</span>
-              <q-chip v-if="property.standing" :color="standingColor" text-color="white" class="q-ml-sm">
+              <q-chip
+                v-if="property.standing"
+                :color="standingColor"
+                text-color="white"
+                class="q-ml-sm"
+              >
                 {{ getStandingLabel(property.standing) }}
               </q-chip>
             </div>
@@ -113,7 +115,9 @@
                         </q-item-section>
                         <q-item-section>
                           <q-item-label caption>Salles de bain</q-item-label>
-                          <q-item-label>{{ property.original.nombre_salles_bain || 0 }}</q-item-label>
+                          <q-item-label>{{
+                            property.original.nombre_salles_bain || 0
+                          }}</q-item-label>
                         </q-item-section>
                       </q-item>
                     </q-list>
@@ -147,7 +151,9 @@
                         </q-item-section>
                         <q-item-section>
                           <q-item-label caption>Ajoutée le</q-item-label>
-                          <q-item-label>{{ formatDate(property.original.date_creation) }}</q-item-label>
+                          <q-item-label>{{
+                            formatDate(property.original.date_creation)
+                          }}</q-item-label>
                         </q-item-section>
                       </q-item>
                     </q-list>
@@ -186,15 +192,21 @@
                   <div><strong>Quartier :</strong> {{ property.original.parcelle.quartier }}</div>
                   <div><strong>Avenue :</strong> {{ property.original.parcelle.avenue }}</div>
                   <div><strong>Numéro :</strong> {{ property.original.parcelle.numero }}</div>
-                  <div><strong>Superficie parcelle :</strong> {{ property.original.parcelle.superficie }} m²</div>
+                  <div>
+                    <strong>Superficie parcelle :</strong>
+                    {{ property.original.parcelle.superficie }} m²
+                  </div>
                 </div>
               </div>
 
               <q-btn
                 color="primary"
-                :label="property.type_offre === 'vente' ? 'Demander une visite' : 'Demander à louer'"
+                :label="
+                  property.type_offre === 'vente' ? 'Demander une visite' : 'Demander à louer'
+                "
                 class="full-width q-mb-sm"
                 size="lg"
+                @click="router.push('../auth/login')"
               />
 
               <q-btn
@@ -202,6 +214,7 @@
                 color="primary"
                 label="Contacter le propriétaire"
                 class="full-width"
+                @click="router.push('../auth/login')"
               />
             </q-card-section>
           </q-card>
@@ -224,9 +237,9 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { usePropertiesStore } from 'src/stores/properties'
-
+const router = useRouter() // IMPORTANT: Initialiser ici
 const route = useRoute()
 const propertiesStore = usePropertiesStore()
 const loading = ref(true)
@@ -240,43 +253,53 @@ const getImageUrl = (imagePath) => {
 }
 
 const standingColor = computed(() => {
-  switch(property.value?.standing) {
-    case 'luxe': return 'amber'
-    case 'haut_de_gamme': return 'orange'
-    case 'standard': return 'green'
-    case 'economique': return 'blue'
-    default: return 'grey'
+  switch (property.value?.standing) {
+    case 'luxe':
+      return 'amber'
+    case 'haut_de_gamme':
+      return 'orange'
+    case 'standard':
+      return 'green'
+    case 'economique':
+      return 'blue'
+    default:
+      return 'grey'
   }
 })
 
 const getStandingLabel = (standing) => {
-  switch(standing) {
-    case 'luxe': return 'Luxe'
-    case 'haut_de_gamme': return 'Haut de gamme'
-    case 'standard': return 'Standard'
-    case 'economique': return 'Économique'
-    default: return standing || 'Standard'
+  switch (standing) {
+    case 'luxe':
+      return 'Luxe'
+    case 'haut_de_gamme':
+      return 'Haut de gamme'
+    case 'standard':
+      return 'Standard'
+    case 'economique':
+      return 'Économique'
+    default:
+      return standing || 'Standard'
   }
 }
 
 const formatHouseType = (type) => {
   const types = {
-    'villa': 'Villa',
-    'appartement': 'Appartement',
-    'duplex': 'Duplex',
-    'studio': 'Studio',
-    'fermette': 'Fermette',
-    'contemporaine': 'Contemporaine'
+    villa: 'Villa',
+    appartement: 'Appartement',
+    duplex: 'Duplex',
+    studio: 'Studio',
+    fermette: 'Fermette',
+    contemporaine: 'Contemporaine',
   }
   return types[type] || type
 }
 
 const formatEtat = (etat) => {
   const etats = {
-    'neuf': 'Neuf',
-    'bon_etat': 'Bon état',
-    'renovation': 'À rénover',
-    'ancien': 'Ancien'
+    neuf: 'Neuf',
+    bon_etat: 'Bon état',
+    renovation: 'À rénover',
+    ancien: 'Ancien',
   }
   return etats[etat] || etat
 }
@@ -287,7 +310,7 @@ const formatDate = (dateString) => {
   return date.toLocaleDateString('fr-FR', {
     day: 'numeric',
     month: 'long',
-    year: 'numeric'
+    year: 'numeric',
   })
 }
 
@@ -296,7 +319,7 @@ onMounted(async () => {
     const propertyId = parseInt(route.params.id)
 
     // Chercher d'abord dans les données déjà chargées
-    const existingProperty = propertiesStore.formattedProperties.find(p => p.id === propertyId)
+    const existingProperty = propertiesStore.formattedProperties.find((p) => p.id === propertyId)
 
     if (existingProperty) {
       property.value = existingProperty

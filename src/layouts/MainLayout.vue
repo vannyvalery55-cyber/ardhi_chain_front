@@ -1,28 +1,28 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    
+
     <!-- Header renforcé -->
     <q-header elevated class="bg-deep-purple-9">
       <q-toolbar class="q-py-md custom-toolbar">
-        
+
         <!-- Logo/Titre avec effet amélioré -->
         <div class="row items-center no-wrap">
-          <q-icon 
-            name="account_balance" 
-            size="md" 
+          <q-icon
+            name="account_balance"
+            size="md"
             class="q-mr-sm text-white"
             color="amber-4"
           />
-          <q-toolbar-title 
+          <q-toolbar-title
             class="cursor-pointer text-weight-bold text-h5"
             @click="$router.push({ name: 'home' })"
           >
             <span class="logo-text">
               ARDHI<span class="text-amber-4">_</span>CHAIN
             </span>
-            <q-badge 
-              rounded 
-              color="amber-6" 
+            <q-badge
+              rounded
+              color="amber-6"
               class="q-ml-sm text-caption"
               label="Beta"
             />
@@ -33,59 +33,60 @@
 
         <!-- Navigation améliorée -->
         <div class="row items-center no-wrap q-gutter-md">
-          <q-btn 
-            flat 
-            label="Accueil" 
-            :to="{ name: 'home' }" 
+          <q-btn
+            flat
+            label="Accueil"
+            :to="{ name: 'home' }"
             icon="home"
             class="nav-btn"
             exact
           />
-          
-          <q-btn 
-            flat 
-            label="Ajouter Bien" 
-            :to="{ name: 'add-property' }" 
+
+          <q-btn
+            flat
+            label="Ajouter Bien"
+            :to="{ name: 'login' }"
             icon="add_circle"
             class="nav-btn"
           />
-          
+
           <q-separator vertical inset spaced color="white" class="q-my-xs" />
-          
-          <q-btn 
-            flat 
-            label="Mon Compte" 
-            :to="{ name: 'account' }" 
+
+          <q-btn
+            flat
+            label="Mon Compte"
+            :to="{ name: 'login' }"
             icon="person"
             class="nav-btn"
+
           >
-            <q-badge 
-              v-if="false" 
-              floating 
-              color="red" 
-              rounded 
+            <q-badge
+              v-if="false"
+              floating
+              color="red"
+              rounded
             />
           </q-btn>
-          
+
           <!-- Optionnel: Bouton de déconnexion ou menu utilisateur -->
-          <q-btn 
-            round 
-            flat 
+          <q-btn
+            round
+            flat
             icon="notifications"
             class="q-ml-sm"
           >
-            <q-badge 
+            <q-badge
               v-if="false"
-              color="red" 
-              floating 
-              rounded 
+              color="red"
+              floating
+              rounded
               label="3"
             />
           </q-btn>
         </div>
 
       </q-toolbar>
-      
+
       <!-- Barre inférieure décorative optionnelle -->
       <div class="header-accent bg-amber-4"></div>
     </q-header>
@@ -177,11 +178,11 @@
     min-height: 70px !important;
     height: 70px;
   }
-  
+
   .logo-text {
     font-size: 1.25rem;
   }
-  
+
   .nav-btn {
     padding: 6px 12px;
     font-size: 0.875rem;
@@ -192,7 +193,7 @@
   .nav-btn .q-btn__content {
     flex-direction: column;
   }
-  
+
   .nav-btn .q-icon {
     margin-bottom: 4px;
   }
