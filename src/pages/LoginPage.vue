@@ -409,11 +409,13 @@
               />
             </div>
           </q-form>
+
         </q-card-section>
       </q-card>
     </q-dialog>
   </q-page>
 </template>
+
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
@@ -421,8 +423,9 @@ import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { useAuthStore } from 'src/stores/auth'
 
-const router = useRouter()
+// Initialisation
 const $q = useQuasar()
+const router = useRouter()
 const authStore = useAuthStore()
 
 // États
@@ -435,11 +438,7 @@ const isConfirmPasswordVisible = ref(false)
 const forgotPasswordDialog = ref(false)
 
 // Types d'utilisateurs
-const userTypes = [
-  'Particulier',
-  'Professionnel',
-  'Agent immobilier'
-]
+const userTypes = ['Locateur', 'Acheteur', 'proprietaire']
 
 // Formulaire de connexion
 const loginForm = reactive({
@@ -449,7 +448,7 @@ const loginForm = reactive({
 
 // Formulaire d'inscription
 const registerForm = reactive({
-  type: 'Particulier',
+  type: 'Locateur',
   nom: '',
   email: '',
   telephone: '',
@@ -462,60 +461,137 @@ const registerForm = reactive({
 // Mot de passe oublié
 const forgotPasswordEmail = ref('')
 
+// Fonction pour rediriger vers le dashboard selon le type d'utilisateur
+const redirectToDashboard = (userType) => {
+  let redirectPath = '/'
+  switch (userType?.toLowerCase()) {
+    case 'locateur':
+      redirectPath = '/locateur'
+      break
+    case 'acheteur':
+      redirectPath = '/acheteur'
+      break
+    case 'proprietaire':
+      redirectPath = '/proprietaire'
+      break
+    default:
+      redirectPath = '/'
+  }
+  console.log('Redirection dashboard:', redirectPath)
+  return redirectPath
+}
+
 // Vérifier si l'utilisateur est déjà connecté
 onMounted(() => {
+  console.log('🔧 Page Login montée')
+  console.log('$q disponible:', !!$q)
+  console.log('$q.notify type:', typeof $q?.notify)
+  
+  // Vérifier si l'utilisateur est déjà connecté
   if (authStore.isAuthenticated) {
-    router.push('/')
+    const userType = authStore.userType || authStore.currentUser?.type
+    const redirectPath = redirectToDashboard(userType)
+    router.push(redirectPath)
   }
 })
 
-// Connexion
+// CONNEXION - Version SIMPLIFIÉE qui reste TOUJOURS sur la page
 const handleLogin = async () => {
+  console.log('🔄 Début connexion')
   loading.value = true
-
+  
   try {
+    // Validation
     if (!loginForm.email || !loginForm.password) {
       throw new Error('Veuillez remplir tous les champs')
     }
-
-    await authStore.login({
+    
+    const result = await authStore.login({
       email: loginForm.email,
       password: loginForm.password
     })
-
-    $q.notify({
-      color: 'positive',
-      message: 'Connexion réussie !',
-      icon: 'check_circle',
-      position: 'top-right',
-      timeout: 2000
-    })
-
-    const redirect = router.currentRoute.value.query.redirect || '/'
-    router.push(redirect)
-
+    
+    console.log('📥 Résultat connexion:', result)
+    
+    if (result.success) {
+      console.log('✅ Connexion réussie')
+      
+      // Notification de succès
+      if ($q?.notify) {
+        $q.notify({
+          message: 'Connexion réussie !',
+          color: 'positive',
+          icon: 'check_circle',
+          position: 'top-right',
+          timeout: 2000
+        })
+      }
+      
+      // ✅ SEULEMENT ICI on redirige vers le dashboard
+      const userType = result.data?.type || authStore.userType
+      const redirectPath = redirectToDashboard(userType)
+      
+      // Petite pause pour voir la notification
+      setTimeout(() => {
+        console.log('Redirection après CONNEXION RÉUSSIE vers:', redirectPath)
+        router.push(redirectPath)
+      }, 500)
+      
+    } else {
+      // ✅ ERREUR : On reste sur la page login
+      console.log('❌ Connexion échouée - On reste sur /auth/login')
+      throw new Error(result.error || 'Email ou mot de passe incorrect')
+    }
+    
   } catch (error) {
-    console.error('Erreur de connexion:', error)
-    $q.notify({
-      color: 'negative',
-      message: error.message || 'Erreur de connexion',
-      icon: 'error',
-      position: 'top-right'
-    })
+    console.error('❌ Erreur de connexion:', error)
+    
+    // Notification d'erreur
+    if ($q?.notify) {
+      $q.notify({
+        message: error.message || 'Email ou mot de passe incorrect',
+        color: 'negative',
+        icon: 'error',
+        position: 'top-right',
+        timeout: 3000
+      })
+    }
+    
+    // ✅ IMPORTANT : On reste sur la page
+    // On ne fait AUCUNE redirection, l'utilisateur reste sur /auth/login
+    // On vide seulement le mot de passe pour sécurité
+    loginForm.password = ''
+    
+    console.log('📍 Utilisateur reste sur /auth/login pour réessayer')
+    
   } finally {
     loading.value = false
   }
 }
 
-// Inscription
+// INSCRIPTION - Version qui reste TOUJOURS sur la page
 const handleRegister = async () => {
+  console.log('🔄 Début inscription')
   loading.value = true
-
+  
   try {
+    // Validation
+    if (!registerForm.acceptTerms) {
+      throw new Error('Veuillez accepter les conditions d\'utilisation')
+    }
+    
     if (registerForm.mot_de_passe !== registerForm.confirmPassword) {
       throw new Error('Les mots de passe ne correspondent pas')
     }
-
+    
+    if (registerForm.mot_de_passe.length < 6) {
+      throw new Error('Le mot de passe doit contenir au moins 6 caractères')
+    }
+    
+    if (!registerForm.nom || !registerForm.email || !registerForm.mot_de_passe) {
+      throw new Error('Veuillez remplir tous les champs obligatoires')
+    }
+    
     const userData = {
       type: registerForm.type,
       nom: registerForm.nom,
@@ -524,27 +600,75 @@ const handleRegister = async () => {
       telephone: registerForm.telephone || null,
       adresse: registerForm.adresse || null
     }
-
-    await authStore.register(userData)
-
-    $q.notify({
-      color: 'positive',
-      message: 'Inscription réussie ! Vous êtes maintenant connecté.',
-      icon: 'check_circle',
-      position: 'top-right',
-      timeout: 2500
-    })
-
-    router.push('/')
-
+    
+    console.log('📤 Envoi inscription:', userData)
+    
+    const result = await authStore.register(userData)
+    
+    console.log('📥 Résultat inscription:', result)
+    
+    if (result.success) {
+      console.log('✅ Inscription réussie')
+      
+      // Notification de succès
+      if ($q?.notify) {
+        $q.notify({
+          message: 'Inscription réussie ! Vous pouvez maintenant vous connecter.',
+          color: 'positive',
+          icon: 'check_circle',
+          position: 'top-right',
+          timeout: 2500
+        })
+      }
+      
+      // ✅ On reste sur la même page, on bascule juste vers l'onglet login
+      setTimeout(() => {
+        console.log('✅ Inscription réussie - On reste sur /auth/login')
+        
+        // 1. Basculer vers l'onglet connexion
+        tab.value = 'login'
+        
+        // 2. Pré-remplir l'email dans le formulaire de connexion
+        loginForm.email = registerForm.email
+        
+        // 3. Vider les champs mot de passe pour sécurité
+        loginForm.password = ''
+        registerForm.mot_de_passe = ''
+        registerForm.confirmPassword = ''
+        
+        // 4. Optionnel : Vider les autres champs
+        registerForm.nom = ''
+        registerForm.telephone = ''
+        registerForm.adresse = ''
+        registerForm.acceptTerms = false
+        
+      }, 500)
+      
+    } else {
+      // ✅ ERREUR : On reste sur la page
+      console.log('❌ Inscription échouée - On reste sur /auth/login')
+      const errorMsg = result.error || 
+                      (result.data?.error ? result.data.error : 'Erreur d\'inscription')
+      throw new Error(errorMsg)
+    }
+    
   } catch (error) {
-    console.error('Erreur d\'inscription:', error)
-    $q.notify({
-      color: 'negative',
-      message: error.message || 'Erreur d\'inscription',
-      icon: 'error',
-      position: 'top-right'
-    })
+    console.error('❌ Erreur d\'inscription:', error)
+    
+    // Notification d'erreur
+    if ($q?.notify) {
+      $q.notify({
+        message: error.message || 'Erreur d\'inscription',
+        color: 'negative',
+        icon: 'error',
+        position: 'top-right',
+        timeout: 3000
+      })
+    }
+    
+    // ✅ On reste sur la page
+    console.log('📍 Utilisateur reste sur /auth/login')
+    
   } finally {
     loading.value = false
   }
@@ -558,28 +682,33 @@ const openForgotPassword = () => {
 
 const handleForgotPassword = async () => {
   loading.value = true
-
+  
   try {
     await new Promise(resolve => setTimeout(resolve, 1500))
-
-    $q.notify({
-      color: 'positive',
-      message: `Un email de réinitialisation a été envoyé à ${forgotPasswordEmail.value}`,
-      icon: 'email',
-      position: 'top-right'
-    })
-
+    
+    if ($q?.notify) {
+      $q.notify({
+        message: `Un email de réinitialisation a été envoyé à ${forgotPasswordEmail.value}`,
+        color: 'positive',
+        icon: 'email',
+        position: 'top-right',
+        timeout: 3000
+      })
+    }
+    
     forgotPasswordDialog.value = false
     forgotPasswordEmail.value = ''
-
+    
   } catch (error) {
     console.error('Erreur:', error)
-    $q.notify({
-      color: 'negative',
-      message: 'Erreur lors de l\'envoi de l\'email',
-      icon: 'error',
-      position: 'top-right'
-    })
+    if ($q?.notify) {
+      $q.notify({
+        message: 'Erreur lors de l\'envoi de l\'email',
+        color: 'negative',
+        icon: 'error',
+        position: 'top-right'
+      })
+    }
   } finally {
     loading.value = false
   }
@@ -587,21 +716,25 @@ const handleForgotPassword = async () => {
 
 // Connexion sociale
 const loginWithGoogle = () => {
-  $q.notify({
-    message: 'Connexion Google - Fonctionnalité à implémenter',
-    color: 'info',
-    icon: 'info',
-    position: 'top'
-  })
+  if ($q?.notify) {
+    $q.notify({
+      message: 'Connexion Google - Fonctionnalité à implémenter',
+      color: 'info',
+      icon: 'info',
+      position: 'top'
+    })
+  }
 }
 
 const loginWithFacebook = () => {
-  $q.notify({
-    message: 'Connexion Facebook - Fonctionnalité à implémenter',
-    color: 'info',
-    icon: 'info',
-    position: 'top'
-  })
+  if ($q?.notify) {
+    $q.notify({
+      message: 'Connexion Facebook - Fonctionnalité à implémenter',
+      color: 'info',
+      icon: 'info',
+      position: 'top'
+    })
+  }
 }
 
 // Navigation
@@ -609,7 +742,6 @@ const goToHome = () => {
   router.push('/')
 }
 </script>
-
 <style scoped>
 /* Page principale */
 .login-page {
