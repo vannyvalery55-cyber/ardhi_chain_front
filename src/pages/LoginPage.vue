@@ -469,7 +469,7 @@ const redirectToDashboard = (userType) => {
       redirectPath = '/locateur'
       break
     case 'acheteur':
-      redirectPath = '/acheteur'
+      redirectPath = '/parcelles'
       break
     case 'proprietaire':
       redirectPath = '/proprietaire'
@@ -486,7 +486,7 @@ onMounted(() => {
   console.log('🔧 Page Login montée')
   console.log('$q disponible:', !!$q)
   console.log('$q.notify type:', typeof $q?.notify)
-  
+
   // Vérifier si l'utilisateur est déjà connecté
   if (authStore.isAuthenticated) {
     const userType = authStore.userType || authStore.currentUser?.type
@@ -499,23 +499,23 @@ onMounted(() => {
 const handleLogin = async () => {
   console.log('🔄 Début connexion')
   loading.value = true
-  
+
   try {
     // Validation
     if (!loginForm.email || !loginForm.password) {
       throw new Error('Veuillez remplir tous les champs')
     }
-    
+
     const result = await authStore.login({
       email: loginForm.email,
       password: loginForm.password
     })
-    
+
     console.log('📥 Résultat connexion:', result)
-    
+
     if (result.success) {
       console.log('✅ Connexion réussie')
-      
+
       // Notification de succès
       if ($q?.notify) {
         $q.notify({
@@ -526,26 +526,26 @@ const handleLogin = async () => {
           timeout: 2000
         })
       }
-      
+
       // ✅ SEULEMENT ICI on redirige vers le dashboard
       const userType = result.data?.type || authStore.userType
       const redirectPath = redirectToDashboard(userType)
-      
+
       // Petite pause pour voir la notification
       setTimeout(() => {
         console.log('Redirection après CONNEXION RÉUSSIE vers:', redirectPath)
         router.push(redirectPath)
       }, 500)
-      
+
     } else {
       // ✅ ERREUR : On reste sur la page login
       console.log('❌ Connexion échouée - On reste sur /auth/login')
       throw new Error(result.error || 'Email ou mot de passe incorrect')
     }
-    
+
   } catch (error) {
     console.error('❌ Erreur de connexion:', error)
-    
+
     // Notification d'erreur
     if ($q?.notify) {
       $q.notify({
@@ -556,14 +556,14 @@ const handleLogin = async () => {
         timeout: 3000
       })
     }
-    
+
     // ✅ IMPORTANT : On reste sur la page
     // On ne fait AUCUNE redirection, l'utilisateur reste sur /auth/login
     // On vide seulement le mot de passe pour sécurité
     loginForm.password = ''
-    
+
     console.log('📍 Utilisateur reste sur /auth/login pour réessayer')
-    
+
   } finally {
     loading.value = false
   }
@@ -573,25 +573,25 @@ const handleLogin = async () => {
 const handleRegister = async () => {
   console.log('🔄 Début inscription')
   loading.value = true
-  
+
   try {
     // Validation
     if (!registerForm.acceptTerms) {
       throw new Error('Veuillez accepter les conditions d\'utilisation')
     }
-    
+
     if (registerForm.mot_de_passe !== registerForm.confirmPassword) {
       throw new Error('Les mots de passe ne correspondent pas')
     }
-    
+
     if (registerForm.mot_de_passe.length < 6) {
       throw new Error('Le mot de passe doit contenir au moins 6 caractères')
     }
-    
+
     if (!registerForm.nom || !registerForm.email || !registerForm.mot_de_passe) {
       throw new Error('Veuillez remplir tous les champs obligatoires')
     }
-    
+
     const userData = {
       type: registerForm.type,
       nom: registerForm.nom,
@@ -600,16 +600,16 @@ const handleRegister = async () => {
       telephone: registerForm.telephone || null,
       adresse: registerForm.adresse || null
     }
-    
+
     console.log('📤 Envoi inscription:', userData)
-    
+
     const result = await authStore.register(userData)
-    
+
     console.log('📥 Résultat inscription:', result)
-    
+
     if (result.success) {
       console.log('✅ Inscription réussie')
-      
+
       // Notification de succès
       if ($q?.notify) {
         $q.notify({
@@ -620,41 +620,41 @@ const handleRegister = async () => {
           timeout: 2500
         })
       }
-      
+
       // ✅ On reste sur la même page, on bascule juste vers l'onglet login
       setTimeout(() => {
         console.log('✅ Inscription réussie - On reste sur /auth/login')
-        
+
         // 1. Basculer vers l'onglet connexion
         tab.value = 'login'
-        
+
         // 2. Pré-remplir l'email dans le formulaire de connexion
         loginForm.email = registerForm.email
-        
+
         // 3. Vider les champs mot de passe pour sécurité
         loginForm.password = ''
         registerForm.mot_de_passe = ''
         registerForm.confirmPassword = ''
-        
+
         // 4. Optionnel : Vider les autres champs
         registerForm.nom = ''
         registerForm.telephone = ''
         registerForm.adresse = ''
         registerForm.acceptTerms = false
-        
+
       }, 500)
-      
+
     } else {
       // ✅ ERREUR : On reste sur la page
       console.log('❌ Inscription échouée - On reste sur /auth/login')
-      const errorMsg = result.error || 
+      const errorMsg = result.error ||
                       (result.data?.error ? result.data.error : 'Erreur d\'inscription')
       throw new Error(errorMsg)
     }
-    
+
   } catch (error) {
     console.error('❌ Erreur d\'inscription:', error)
-    
+
     // Notification d'erreur
     if ($q?.notify) {
       $q.notify({
@@ -665,10 +665,10 @@ const handleRegister = async () => {
         timeout: 3000
       })
     }
-    
+
     // ✅ On reste sur la page
     console.log('📍 Utilisateur reste sur /auth/login')
-    
+
   } finally {
     loading.value = false
   }
@@ -682,10 +682,10 @@ const openForgotPassword = () => {
 
 const handleForgotPassword = async () => {
   loading.value = true
-  
+
   try {
     await new Promise(resolve => setTimeout(resolve, 1500))
-    
+
     if ($q?.notify) {
       $q.notify({
         message: `Un email de réinitialisation a été envoyé à ${forgotPasswordEmail.value}`,
@@ -695,10 +695,10 @@ const handleForgotPassword = async () => {
         timeout: 3000
       })
     }
-    
+
     forgotPasswordDialog.value = false
     forgotPasswordEmail.value = ''
-    
+
   } catch (error) {
     console.error('Erreur:', error)
     if ($q?.notify) {

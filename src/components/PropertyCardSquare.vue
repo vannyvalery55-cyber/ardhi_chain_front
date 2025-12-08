@@ -32,15 +32,22 @@
 
         <!-- Overlay au survol -->
         <div class="property-image-overlay">
-          <q-btn
-            round
-            color="white"
-            text-color="deep-purple-7"
-            icon="visibility"
-            size="sm"
-            class="view-details-btn"
-            @click.stop="viewDetails"
-          />
+          <div class="overlay-content text-center">
+            <q-btn
+              round
+              color="white"
+              text-color="deep-purple-7"
+              :icon="isUserLoggedIn ? 'visibility' : 'lock'"
+              size="md"
+              class="view-details-btn q-mb-sm"
+              @click.stop="viewDetails"
+            />
+
+            <!-- Message conditionnel -->
+            <div class="auth-hint text-white text-caption">
+              {{ isUserLoggedIn ? 'Voir détails' : 'Connectez-vous' }}
+            </div>
+          </div>
         </div>
       </q-img>
     </div>
@@ -141,7 +148,7 @@
         <q-btn
           outline
           color="grey-6"
-          label="Détails"
+          :label="isUserLoggedIn ? 'Détails' : 'Se connecter'"
           size="sm"
           class="full-width q-mt-xs"
           @click="viewDetails"
@@ -165,6 +172,28 @@ const props = defineProps({
 });
 
 const router = useRouter();
+
+// Vérifier si l'utilisateur est connecté
+const isUserLoggedIn = computed(() => {
+  // Vérifier plusieurs méthodes d'authentification courantes
+  const token = localStorage.getItem('auth_token');
+  const session = localStorage.getItem('user_session');
+  const userData = localStorage.getItem('user_data');
+  const accessToken = localStorage.getItem('access_token');
+
+  // Vérifier aussi dans sessionStorage
+  const sessionToken = sessionStorage.getItem('auth_token');
+  const sessionUser = sessionStorage.getItem('user');
+
+  // Vérifier les cookies (approximation)
+  const hasAuthCookie = document.cookie.includes('auth_token') ||
+                       document.cookie.includes('access_token') ||
+                       document.cookie.includes('session');
+
+  // Retourner true si au moins une méthode d'authentification est trouvée
+  return !!(token || session || userData || accessToken ||
+           sessionToken || sessionUser || hasAuthCookie);
+});
 
 // Déterminer le type de propriété
 const isParcelle = computed(() => {
@@ -209,7 +238,7 @@ const getImageUrl = (property) => {
   return '/images/default-property.jpg';
 };
 
-// Fonction pour obtenir les caractéristiques (au lieu d'un computed)
+// Fonction pour obtenir les caractéristiques
 const getFeatures = () => {
   const features = [];
   const property = props.property;
@@ -304,9 +333,32 @@ const getFeatureIcon = (feature) => {
   return 'check';
 };
 
-// Navigation vers les détails - UNE SEULE FONCTION
+// Navigation vers les détails - MODIFIÉE POUR REDIRIGER VERS AUTH/LOGIN
 const viewDetails = () => {
-  // Vérifier si c'est une parcelle ou une maison
+  // Vérifier si l'utilisateur est connecté
+  if (!isUserLoggedIn.value) {
+    // Stocker les informations de la propriété pour après le login
+    const propertyData = {
+      id: props.property.id,
+      name: props.property.name,
+      type: isParcelle.value ? 'parcelle' : 'property',
+      path: isParcelle.value ? `/parcelle/${props.property.id}` : `/property/${props.property.id}`,
+      timestamp: Date.now()
+    };
+
+    // Sauvegarder dans sessionStorage (plus sécurisé)
+    sessionStorage.setItem('property_redirect', JSON.stringify(propertyData));
+
+    // Rediriger vers auth/login
+    console.log('🔒 Redirection vers /auth/login pour voir:', props.property.name);
+    window.location.href = '/auth/login';
+
+    return; // Arrêter l'exécution ici
+  }
+
+  // Si l'utilisateur est connecté, procéder normalement
+  console.log('✅ Utilisateur connecté, navigation vers détails');
+
   if (isParcelle.value) {
     // Rediriger vers la page des détails de parcelle
     router.push({
@@ -326,13 +378,28 @@ const viewDetails = () => {
 const contactOwner = () => {
   console.log('Contacter le propriétaire pour:', props.property.name);
 
+  // Vérifier si l'utilisateur doit se connecter pour contacter
+  if (!isUserLoggedIn.value) {
+    // Stocker l'intention de contact
+    const contactData = {
+      propertyId: props.property.id,
+      propertyName: props.property.name,
+      action: 'contact',
+      timestamp: Date.now()
+    };
+
+    sessionStorage.setItem('contact_redirect', JSON.stringify(contactData));
+
+    // Rediriger vers auth/login
+    window.location.href = '/auth/login';
+    return;
+  }
+
+  // Logique de contact si connecté
   if (isParcelle.value) {
-    // Pour les terrains - logique spécifique
     console.log('Terrain ID:', props.property.id);
-    // Vous pouvez rediriger vers une page de contact spécifique
     // router.push({ name: 'contact-parcelle', params: { id: props.property.id } });
   } else {
-    // Pour les maisons - logique spécifique
     console.log('Maison ID:', props.property.id);
     // router.push({ name: 'contact-property', params: { id: props.property.id } });
   }
@@ -370,7 +437,7 @@ const contactOwner = () => {
   transform: scale(1.05);
 }
 
-/* Badge Standing */
+/* Badge Statut */
 .status-badge {
   padding: 4px 8px;
   border-radius: 12px;
@@ -398,6 +465,11 @@ const contactOwner = () => {
   opacity: 1;
 }
 
+.overlay-content {
+  width: 100%;
+  padding: 20px;
+}
+
 .view-details-btn {
   transform: scale(0.8);
   transition: transform 0.3s ease;
@@ -405,6 +477,15 @@ const contactOwner = () => {
 
 .property-card-square:hover .view-details-btn {
   transform: scale(1);
+}
+
+.auth-hint {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 4px 8px;
+  border-radius: 12px;
+  margin-top: 8px;
+  display: inline-block;
+  backdrop-filter: blur(4px);
 }
 
 /* Contenu */
@@ -468,5 +549,29 @@ const contactOwner = () => {
   .property-content {
     padding: 12px;
   }
+
+  .overlay-content {
+    padding: 10px;
+  }
+
+  .auth-hint {
+    font-size: 0.65rem;
+    padding: 3px 6px;
+  }
+}
+
+/* Animation pour le bouton de connexion */
+.property-actions .q-btn:last-child:hover {
+  background-color: rgba(103, 58, 183, 0.1);
+  border-color: #673ab7;
+}
+
+/* Style pour l'état non connecté */
+.property-card-square:not(.user-logged) .property-image-overlay {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.property-card-square:not(.user-logged) .auth-hint {
+  background: rgba(220, 53, 69, 0.8); /* Rouge pour indiquer l'action nécessaire */
 }
 </style>

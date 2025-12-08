@@ -9,7 +9,12 @@ const routes = [
         name: 'home',
         component: () => import('pages/HomePage.vue')
       },
-
+   {
+    path: '/dashboard',
+    name: 'dashboard',
+    component: () => import('pages/BuyerDashboard.vue'),
+  },
+  
       // Route pour les détails de la propriété
       {
         path: 'property/:id',
@@ -80,7 +85,7 @@ const routes = [
     component: () => import('pages/ParcellesPage.vue')
   },
   {
-    path: '/parcelles/:id',
+    path: '/parcelle/:id',
     name: 'parcelle-details',
     component: () => import('pages/ParcelleDetailsPage.vue')
   },
