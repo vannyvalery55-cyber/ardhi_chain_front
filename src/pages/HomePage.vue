@@ -4,7 +4,7 @@
     <div class="hero-container relative-position">
       <div class="hero-overlay"></div>
 
-      <div class="hero-content text-center q-pa-xl" style="z-index: 2;">
+      <div class="hero-content text-center q-pa-xl" style="z-index: 2">
         <!-- Badge d'accroche -->
         <q-badge
           rounded
@@ -14,24 +14,26 @@
         />
 
         <!-- Titre principal -->
-        <div class="text-h2 text-white q-mb-md text-weight-bold hero-title">
-          ARDHI-CHAIN
-        </div>
+        <div class="text-h2 text-white q-mb-md text-weight-bold hero-title">ARDHI-CHAIN</div>
 
         <div class="text-h5 text-white q-mb-xl text-weight-medium">
           La Sécurité Foncière à Goma <span class="text-amber-4">Redéfinie</span>
         </div>
 
         <!-- Description améliorée -->
-        <div class="text-body1 text-white q-mb-xl hero-description" style="max-width: 900px; margin: auto;">
-          **ARDHI-CHAIN** révolutionne la sécurité foncière à Goma grâce à la puissance de la blockchain Cardano.
-          Chaque titre de propriété est transformé en **NFT unique**, garantissant une **Preuve de Propriété (PoP)**
-          infalsifiable et immuable. Notre plateforme élimine les risques de fraude et sécurise votre patrimoine
-          immobilier pour les générations futures.
+        <div
+          class="text-body1 text-white q-mb-xl hero-description"
+          style="max-width: 900px; margin: auto"
+        >
+          **ARDHI-CHAIN** révolutionne la sécurité foncière à Goma grâce à la puissance de la
+          blockchain Cardano. Chaque titre de propriété est transformé en **NFT unique**,
+          garantissant une **Preuve de Propriété (PoP)** infalsifiable et immuable. Notre plateforme
+          élimine les risques de fraude et sécurise votre patrimoine immobilier pour les générations
+          futures.
         </div>
 
         <!-- Widget de recherche amélioré -->
-        <div class="search-container q-mt-xl" style="max-width: 800px; margin: auto;">
+        <div class="search-container q-mt-xl" style="max-width: 800px; margin: auto">
           <SearchWidget
             v-model:modelValue="searchTerm"
             @search="handleSearch"
@@ -70,14 +72,8 @@
                       class="logo-animation"
                     />
                   </div>
-                  <div class="text-h4 text-deep-purple-8 text-weight-bold q-mb-sm">
-                    ARDHI-CHAIN
-                  </div>
-                  <q-chip
-                    color="amber-1"
-                    text-color="amber-9"
-                    class="q-mb-lg"
-                  >
+                  <div class="text-h4 text-deep-purple-8 text-weight-bold q-mb-sm">ARDHI-CHAIN</div>
+                  <q-chip color="amber-1" text-color="amber-9" class="q-mb-lg">
                     <q-avatar icon="verified" color="amber-4" text-color="white" />
                     Plateforme Certifiée
                   </q-chip>
@@ -87,10 +83,12 @@
                   src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                   alt="Sécurité Foncière Blockchain"
                   class="rounded-borders shadow-5"
-                  style="height: 300px;"
+                  style="height: 300px"
                   placeholder-src="https://placehold.co/800x400/a392e2/ffffff?text=Securite+Blockchain"
                 >
-                  <div class="absolute-bottom text-subtitle2 text-center q-pa-sm bg-deep-purple-9 text-white">
+                  <div
+                    class="absolute-bottom text-subtitle2 text-center q-pa-sm bg-deep-purple-9 text-white"
+                  >
                     {{ totalProperties }} biens sécurisés par la Blockchain Cardano
                   </div>
                 </q-img>
@@ -106,46 +104,58 @@
                 <div class="description-content">
                   <p class="text-body1 q-mb-md">
                     <q-icon name="check_circle" color="green-6" size="sm" class="q-mr-sm" />
-                    <strong>ARDHI-CHAIN</strong> est une initiative révolutionnaire qui transforme le secteur foncier
-                    à Goma en apportant une <strong>transparence totale</strong> et une <strong>sécurité inégalée</strong>.
+                    <strong>ARDHI-CHAIN</strong> est une initiative révolutionnaire qui transforme
+                    le secteur foncier à Goma en apportant une
+                    <strong>transparence totale</strong> et une <strong>sécurité inégalée</strong>.
                   </p>
 
                   <p class="text-body1 q-mb-md">
                     <q-icon name="check_circle" color="green-6" size="sm" class="q-mr-sm" />
-                    Nous exploitons la <strong>Blockchain Cardano</strong> pour créer un registre de propriété
-                    <strong>immuable</strong> et <strong>infalsifiable</strong>, accessible à tous.
+                    Nous exploitons la <strong>Blockchain Cardano</strong> pour créer un registre de
+                    propriété <strong>immuable</strong> et <strong>infalsifiable</strong>,
+                    accessible à tous.
                   </p>
 
                   <p class="text-body1 q-mb-md">
                     <q-icon name="check_circle" color="green-6" size="sm" class="q-mr-sm" />
-                    Chaque parcelle est tokenisée en <strong>NFT unique</strong>, servant de <strong>Preuve de Propriété (PoP)</strong>
+                    Chaque parcelle est tokenisée en <strong>NFT unique</strong>, servant de
+                    <strong>Preuve de Propriété (PoP)</strong>
                     numérique vérifiable à tout moment.
                   </p>
 
                   <p class="text-body1">
                     <q-icon name="check_circle" color="green-6" size="sm" class="q-mr-sm" />
-                    Notre mission : garantir la <strong>confiance</strong> et la <strong>sécurité</strong> pour
-                    les propriétaires et investisseurs, avec un système où l'authenticité de votre bien est
-                    gravée dans la blockchain pour l'éternité.
+                    Notre mission : garantir la <strong>confiance</strong> et la
+                    <strong>sécurité</strong> pour les propriétaires et investisseurs, avec un
+                    système où l'authenticité de votre bien est gravée dans la blockchain pour
+                    l'éternité.
                   </p>
                 </div>
 
                 <!-- Statistiques réelles -->
                 <div class="row q-mt-xl q-gutter-md">
                   <div class="col">
-                    <div class="text-h5 text-deep-purple-9 text-weight-bold text-center">{{ totalProperties }}</div>
+                    <div class="text-h5 text-deep-purple-9 text-weight-bold text-center">
+                      {{ totalProperties }}
+                    </div>
                     <div class="text-caption text-grey-7 text-center">Biens sécurisés</div>
                   </div>
                   <div class="col">
-                    <div class="text-h5 text-deep-purple-9 text-weight-bold text-center">{{ forSaleCount }}</div>
+                    <div class="text-h5 text-deep-purple-9 text-weight-bold text-center">
+                      {{ forSaleCount }}
+                    </div>
                     <div class="text-caption text-grey-7 text-center">À vendre</div>
                   </div>
                   <div class="col">
-                    <div class="text-h5 text-deep-purple-9 text-weight-bold text-center">{{ availableLandCount }}</div>
+                    <div class="text-h5 text-deep-purple-9 text-weight-bold text-center">
+                      {{ availableLandCount }}
+                    </div>
                     <div class="text-caption text-grey-7 text-center">Terrains disponibles</div>
                   </div>
                   <div class="col">
-                    <div class="text-h5 text-deep-purple-9 text-weight-bold text-center">{{ uniqueCities.length }}</div>
+                    <div class="text-h5 text-deep-purple-9 text-weight-bold text-center">
+                      {{ uniqueCities.length }}
+                    </div>
                     <div class="text-caption text-grey-7 text-center">Villes</div>
                   </div>
                 </div>
@@ -176,8 +186,8 @@
                   Identités Vérifiées (DID)
                 </div>
                 <p class="text-body2 text-grey-7">
-                  Système d'identité décentralisée pour une confiance absolue entre toutes les parties prenantes,
-                  éliminant les risques d'usurpation d'identité.
+                  Système d'identité décentralisée pour une confiance absolue entre toutes les
+                  parties prenantes, éliminant les risques d'usurpation d'identité.
                 </p>
               </q-card-section>
             </q-card>
@@ -191,8 +201,8 @@
                   Tokenisation des Parcelles
                 </div>
                 <p class="text-body2 text-grey-7">
-                  Chaque titre est un <strong>NFT unique</strong> sur Cardano, garantissant son authenticité
-                  et son immuabilité. Une révolution dans la propriété foncière.
+                  Chaque titre est un <strong>NFT unique</strong> sur Cardano, garantissant son
+                  authenticité et son immuabilité. Une révolution dans la propriété foncière.
                 </p>
               </q-card-section>
             </q-card>
@@ -206,8 +216,8 @@
                   Transparence du Registre
                 </div>
                 <p class="text-body2 text-grey-7">
-                  Historique des transactions accessible à tous, réduisant drastiquement les risques de litiges.
-                  Chaque modification est traçable et vérifiable.
+                  Historique des transactions accessible à tous, réduisant drastiquement les risques
+                  de litiges. Chaque modification est traçable et vérifiable.
                 </p>
               </q-card-section>
             </q-card>
@@ -241,26 +251,29 @@
           <!-- Navigation par catégorie -->
           <div class="category-tabs q-mb-lg">
             <!-- Dans la section navigation -->
-<q-tabs v-model="activeCategory">
-  <q-tab
-    name="houses"
-    icon="house"
-    label="Maisons"
-    @click="$router.push('/properties')"
-  />
-  <q-tab
-    name="land"
-    icon="landscape"
-    label="Terrains"
-    @click="$router.push('/parcelles')"
-  />
-</q-tabs>
+            <q-tabs v-model="activeCategory">
+              <q-tab
+                name="houses"
+                icon="house"
+                label="Maisons"
+                @click="$router.push('/properties')"
+              />
+              <q-tab
+                name="land"
+                icon="landscape"
+                label="Terrains"
+                @click="$router.push('/parcelles')"
+              />
+            </q-tabs>
           </div>
 
           <!-- Grille de propriétés en cartes carrées -->
           <div class="properties-grid-container q-mb-xl">
             <!-- Maisons et Appartements -->
-            <div v-if="activeCategory === 'all' || activeCategory === 'houses'" class="category-section q-mb-xl">
+            <div
+              v-if="activeCategory === 'all' || activeCategory === 'houses'"
+              class="category-section q-mb-xl"
+            >
               <div class="text-h5 text-deep-purple-9 q-mb-md">
                 <q-icon name="house" color="deep-purple-7" class="q-mr-sm" />
                 Maisons et Appartements ({{ filteredHouses.length }})
@@ -280,7 +293,7 @@
                   <!-- Placeholders si moins de 3 maisons -->
                   <template v-if="filteredHouses.length < 3">
                     <div
-                      v-for="n in (3 - filteredHouses.length)"
+                      v-for="n in 3 - filteredHouses.length"
                       :key="`placeholder-${n}`"
                       class="grid-item placeholder-card"
                     >
@@ -307,7 +320,7 @@
                   <!-- Placeholders si moins de 3 maisons sur la deuxième ligne -->
                   <template v-if="filteredHouses.length < 6">
                     <div
-                      v-for="n in (6 - Math.min(filteredHouses.length, 6))"
+                      v-for="n in 6 - Math.min(filteredHouses.length, 6)"
                       :key="`placeholder2-${n}`"
                       class="grid-item placeholder-card"
                     >
@@ -349,12 +362,17 @@
               <div v-else class="empty-state q-pa-lg text-center">
                 <q-icon name="house_siding" size="xl" color="grey-4" class="q-mb-sm" />
                 <div class="text-h6 text-grey-6">Aucune maison disponible actuellement</div>
-                <div class="text-caption text-grey-5">Revenez bientôt pour découvrir de nouvelles propriétés</div>
+                <div class="text-caption text-grey-5">
+                  Revenez bientôt pour découvrir de nouvelles propriétés
+                </div>
               </div>
             </div>
 
             <!-- Terrains et Parcelles -->
-            <div v-if="activeCategory === 'all' || activeCategory === 'land'" class="category-section q-mb-xl">
+            <div
+              v-if="activeCategory === 'all' || activeCategory === 'land'"
+              class="category-section q-mb-xl"
+            >
               <div class="text-h5 text-deep-purple-9 q-mb-md">
                 <q-icon name="map" color="teal-7" class="q-mr-sm" />
                 Terrains et Parcelles ({{ filteredLand.length }})
@@ -374,14 +392,16 @@
                   <!-- Placeholders si moins de 3 terrains -->
                   <template v-if="filteredLand.length < 3">
                     <div
-                      v-for="n in (3 - filteredLand.length)"
+                      v-for="n in 3 - filteredLand.length"
                       :key="`placeholder-land-${n}`"
                       class="grid-item placeholder-card"
                     >
                       <q-card class="empty-property-card" flat>
                         <div class="text-center q-pa-xl">
                           <q-icon name="add_circle" size="xl" color="grey-4" />
-                          <div class="text-caption text-grey-5 q-mt-sm">Nouvelle parcelle prochainement</div>
+                          <div class="text-caption text-grey-5 q-mt-sm">
+                            Nouvelle parcelle prochainement
+                          </div>
                         </div>
                       </q-card>
                     </div>
@@ -401,7 +421,7 @@
                   <!-- Placeholders si moins de 3 terrains sur la deuxième ligne -->
                   <template v-if="filteredLand.length < 6">
                     <div
-                      v-for="n in (6 - Math.min(filteredLand.length, 6))"
+                      v-for="n in 6 - Math.min(filteredLand.length, 6)"
                       :key="`placeholder-land2-${n}`"
                       class="grid-item placeholder-card"
                     >
@@ -443,7 +463,9 @@
               <div v-else class="empty-state q-pa-lg text-center">
                 <q-icon name="fence" size="xl" color="grey-4" class="q-mb-sm" />
                 <div class="text-h6 text-grey-6">Aucune parcelle disponible actuellement</div>
-                <div class="text-caption text-grey-5">Explorez notre carte pour voir les disponibilités futures</div>
+                <div class="text-caption text-grey-5">
+                  Explorez notre carte pour voir les disponibilités futures
+                </div>
               </div>
             </div>
           </div>
@@ -460,7 +482,9 @@
                 <div class="map-container text-center q-pa-xl bg-grey-3 rounded-borders">
                   <q-icon name="map" size="xl" color="grey-6" class="q-mb-sm" />
                   <div class="text-h6 text-grey-7">Carte interactive à venir</div>
-                  <div class="text-caption text-grey-5">Visualisation géographique des propriétés</div>
+                  <div class="text-caption text-grey-5">
+                    Visualisation géographique des propriétés
+                  </div>
                 </div>
               </q-card-section>
             </q-card>
@@ -506,17 +530,19 @@ const filteredHouses = computed(() => {
   const term = searchTerm.value.toLowerCase().trim()
 
   if (!term) {
-    return allProperties.value.filter(property =>
-      property.category === 'Maison' ||
-      property.type_maison === 'appartement' ||
-      property.type_maison === 'villa'
+    return allProperties.value.filter(
+      (property) =>
+        property.category === 'Maison' ||
+        property.type_maison === 'appartement' ||
+        property.type_maison === 'villa',
     )
   }
 
-  return allProperties.value.filter(property => {
-    const isHouse = property.category === 'Maison' ||
-                   property.type_maison === 'appartement' ||
-                   property.type_maison === 'villa'
+  return allProperties.value.filter((property) => {
+    const isHouse =
+      property.category === 'Maison' ||
+      property.type_maison === 'appartement' ||
+      property.type_maison === 'villa'
 
     if (!isHouse) return false
 
@@ -538,7 +564,7 @@ const filteredLand = computed(() => {
     return allParcelles.value
   }
 
-  return allParcelles.value.filter(parcelle => {
+  return allParcelles.value.filter((parcelle) => {
     return (
       parcelle.name?.toLowerCase().includes(term) ||
       parcelle.description?.toLowerCase().includes(term) ||
@@ -564,22 +590,18 @@ const totalProperties = computed(() => {
 })
 
 const forSaleCount = computed(() => {
-  const housesForSale = filteredHouses.value.filter(p => p.type_offre === 'vente').length
-  const landForSale = filteredLand.value.filter(p => p.statut === 'disponible').length
+  const housesForSale = filteredHouses.value.filter((p) => p.type_offre === 'vente').length
+  const landForSale = filteredLand.value.filter((p) => p.statut === 'disponible').length
   return housesForSale + landForSale
 })
 
 const availableLandCount = computed(() => {
-  return filteredLand.value.filter(p => p.statut === 'disponible').length
+  return filteredLand.value.filter((p) => p.statut === 'disponible').length
 })
 
 const uniqueCities = computed(() => {
-  const houseCities = filteredHouses.value
-    .map(p => p.original?.parcelle?.ville)
-    .filter(Boolean)
-  const landCities = filteredLand.value
-    .map(p => p.ville)
-    .filter(Boolean)
+  const houseCities = filteredHouses.value.map((p) => p.original?.parcelle?.ville).filter(Boolean)
+  const landCities = filteredLand.value.map((p) => p.ville).filter(Boolean)
 
   return [...new Set([...houseCities, ...landCities])]
 })
@@ -606,15 +628,14 @@ onMounted(async () => {
       propertiesStore.houses.length === 0 ? propertiesStore.fetchHouses() : Promise.resolve(),
 
       // Charger les parcelles
-      parcellesStore.fetchParcelles()
+      parcellesStore.fetchParcelles(),
     ])
 
     console.log('✅ Données chargées avec succès:', {
       maisons: filteredHouses.value.length,
       parcelles: filteredLand.value.length,
-      total: totalProperties.value
+      total: totalProperties.value,
     })
-
   } catch (error) {
     console.error('❌ Erreur chargement données:', error)
   } finally {
@@ -627,7 +648,7 @@ onMounted(async () => {
 /* Hero Section */
 .hero-container {
   min-height: 90vh;
-  background: linear-gradient(135deg, #4527A0 0%, #311B92 50%, #1A237E 100%);
+  background: linear-gradient(135deg, #4527a0 0%, #311b92 50%, #1a237e 100%);
   position: relative;
   display: flex;
   align-items: center;
@@ -641,7 +662,8 @@ onMounted(async () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: url('https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover;
+  background: url('https://images.unsplash.com/photo-1570129477492-45c003edd2be?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')
+  center/cover;
   opacity: 0.1;
   z-index: 1;
 }
@@ -649,7 +671,7 @@ onMounted(async () => {
 .hero-title {
   font-size: 4rem;
   text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  background: linear-gradient(90deg, #FFFFFF 30%, #FFD54F 100%);
+  background: linear-gradient(90deg, #ffffff 30%, #ffd54f 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -678,7 +700,7 @@ onMounted(async () => {
 
 /* Category Tabs */
 .category-tabs {
-  background: #F5F5F5;
+  background: #f5f5f5;
   border-radius: 12px;
   padding: 8px;
 }
@@ -734,9 +756,9 @@ onMounted(async () => {
 
 .empty-property-card {
   height: 350px;
-  border: 2px dashed #E0E0E0;
+  border: 2px dashed #e0e0e0;
   border-radius: 16px;
-  background: #FAFAFA;
+  background: #fafafa;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -745,7 +767,7 @@ onMounted(async () => {
 /* Category Sections */
 .category-section {
   padding-bottom: 2rem;
-  border-bottom: 2px solid #F0F0F0;
+  border-bottom: 2px solid #f0f0f0;
 }
 
 .category-section:last-child {
@@ -754,9 +776,9 @@ onMounted(async () => {
 
 /* Empty States */
 .empty-state {
-  border: 2px dashed #E0E0E0;
+  border: 2px dashed #e0e0e0;
   border-radius: 16px;
-  background: #FAFAFA;
+  background: #fafafa;
   margin: 2rem 0;
 }
 
@@ -764,7 +786,7 @@ onMounted(async () => {
 .map-section {
   margin-top: 4rem;
   padding-top: 2rem;
-  border-top: 2px solid #F0F0F0;
+  border-top: 2px solid #f0f0f0;
 }
 
 .map-card {
@@ -823,7 +845,11 @@ onMounted(async () => {
 }
 
 @keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
     transform: translateY(0);
   }
   40% {
@@ -854,7 +880,7 @@ onMounted(async () => {
 /* Cards */
 .about-card {
   border-radius: 20px;
-  background: linear-gradient(135deg, #FFFFFF 0%, #F3E5F5 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #f3e5f5 100%);
 }
 
 .benefit-card {
@@ -869,8 +895,8 @@ onMounted(async () => {
 }
 
 .benefit-card.highlight {
-  background: linear-gradient(135deg, #FFF8E1 0%, #FFF3E0 100%);
-  border: 2px solid #FFD54F;
+  background: linear-gradient(135deg, #fff8e1 0%, #fff3e0 100%);
+  border: 2px solid #ffd54f;
 }
 
 .benefit-icon {
