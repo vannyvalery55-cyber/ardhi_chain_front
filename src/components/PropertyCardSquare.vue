@@ -4,7 +4,7 @@
     <!-- Image de la propriété -->
     <div class="property-image-container">
       <q-img
-        :src="getImageUrl(property.image)"
+        :src="getImageUrl(property)"
         :alt="property.name"
         class="property-image"
         loading="lazy"
@@ -16,17 +16,17 @@
             :color="categoryColor"
             class="text-caption text-weight-bold"
           >
-            {{ property.type_offre === 'vente' ? 'À vendre' : 'À louer' }}
+            {{ getCategoryLabel }}
           </q-badge>
         </div>
 
-        <!-- Badge Standing -->
+        <!-- Badge Statut pour les parcelles -->
         <div class="absolute-top-right q-ma-sm">
           <q-badge
-            :color="standingColor"
-            class="standing-badge"
+            :color="statusColor"
+            class="status-badge"
           >
-            {{ getStandingLabel(property.standing) }}
+            {{ property.statut || 'Disponible' }}
           </q-badge>
         </div>
 
@@ -57,9 +57,9 @@
           <q-icon name="location_on" size="xs" class="q-mr-xs" />
           {{ property.location }}
         </div>
-        <div v-if="property.type_maison" class="text-caption text-grey-6 q-mt-xs">
-          <q-icon name="home" size="xs" class="q-mr-xs" />
-          {{ property.type_maison }}
+        <div v-if="property.type" class="text-caption text-grey-6 q-mt-xs">
+          <q-icon name="landscape" size="xs" class="q-mr-xs" />
+          {{ property.type }}
         </div>
       </div>
 
@@ -75,24 +75,24 @@
         <div class="col-6">
           <div class="text-caption text-grey-6">Superficie</div>
           <div class="text-subtitle2 text-weight-medium text-dark">
-            {{ property.area }}
+            {{ property.area || (property.superficie ? `${property.superficie} m²` : 'Non spécifié') }}
           </div>
         </div>
         <div class="col-6">
           <div class="text-caption text-grey-6">
-            {{ property.type_offre === 'vente' ? 'Prix de vente' : 'Prix location' }}
+            Prix
           </div>
           <div class="text-subtitle2 text-weight-bold text-deep-purple-7">
-            {{ property.price }}
+            {{ property.priceFormatted || property.price || 'Prix sur demande' }}
           </div>
         </div>
       </div>
 
-      <!-- Caractéristiques -->
-      <div class="property-features q-mb-md">
+      <!-- Caractéristiques des parcelles (version simplifiée) -->
+      <div v-if="getFeatures().length > 0" class="property-features q-mb-md">
         <div class="row q-col-gutter-xs">
           <div
-            v-for="(feature, index) in property.features"
+            v-for="(feature, index) in getFeatures()"
             :key="index"
             class="col-auto"
           >
@@ -116,13 +116,13 @@
       </div>
 
       <!-- Informations propriétaire -->
-      <div v-if="property.proprietaire" class="property-owner q-mb-sm">
+      <div v-if="property.owner" class="property-owner q-mb-sm">
         <div class="row items-center">
           <q-avatar size="24px" class="q-mr-xs">
             <q-icon name="person" color="grey-6" />
           </q-avatar>
           <div class="text-caption text-grey-7">
-            {{ property.proprietaire.nom }}
+            {{ property.owner }}
           </div>
         </div>
       </div>
@@ -132,7 +132,7 @@
         <q-btn
           flat
           color="deep-purple-7"
-          :label="property.type_offre === 'vente' ? 'Acheter' : 'Louer'"
+          :label="property.statut === 'disponible' ? 'Acheter' : 'Consulter'"
           size="sm"
           icon-right="arrow_forward"
           class="full-width action-btn"
@@ -166,45 +166,109 @@ const props = defineProps({
 
 const router = useRouter();
 
+// Déterminer le type de propriété
+const isParcelle = computed(() => {
+  return props.property.category === 'Terrain' ||
+         props.property.type_terrain ||
+         props.property.type === 'Terrain'
+});
+
+// Log pour déboguer
+console.log('📸 PropertyCardSquare - property:', props.property);
+console.log('📸 PropertyCardSquare - images:', props.property.images);
+console.log('📸 PropertyCardSquare - image:', props.property.image);
+
 // Formater l'URL de l'image
-const getImageUrl = (imagePath) => {
-  if (!imagePath) return '/images/default-property.jpg';
-
-  // Si c'est déjà une URL complète
-  if (imagePath.startsWith('http')) return imagePath;
-
-  // Ajouter le base URL si nécessaire
-  if (imagePath.startsWith('/')) {
-    return `http://localhost:3000${imagePath}`;
+const getImageUrl = (property) => {
+  // Priorité 1: propriété image directe
+  if (property.image && property.image !== '') {
+    console.log('✅ Utilisation de property.image:', property.image);
+    return property.image;
   }
 
-  return imagePath;
+  // Priorité 2: premier élément du tableau images
+  if (property.images && Array.isArray(property.images) && property.images.length > 0) {
+    const firstImage = property.images[0];
+    console.log('✅ Utilisation de property.images[0]:', firstImage);
+    return firstImage;
+  }
+
+  // Priorité 3: si c'est un chemin dans la propriété originale
+  if (property.original?.images && Array.isArray(property.original.images) && property.original.images.length > 0) {
+    const originalImage = property.original.images[0];
+    console.log('✅ Utilisation de property.original.images[0]:', originalImage);
+
+    // Formater l'URL
+    if (originalImage.startsWith('/uploads/')) {
+      return `http://localhost:3000${originalImage}`;
+    }
+    return originalImage;
+  }
+
+  console.log('⚠️ Aucune image trouvée, utilisation par défaut');
+  return '/images/default-property.jpg';
+};
+
+// Fonction pour obtenir les caractéristiques (au lieu d'un computed)
+const getFeatures = () => {
+  const features = [];
+  const property = props.property;
+
+  if (property.type) {
+    features.push(property.type);
+  }
+
+  if (property.superficie) {
+    features.push(`${property.superficie} m²`);
+  }
+
+  if (property.ville) {
+    features.push(property.ville);
+  }
+
+  // Ajouter d'autres caractéristiques si disponibles
+  if (property.quartier) {
+    features.push(property.quartier);
+  }
+
+  if (property.type_terrain) {
+    features.push(property.type_terrain);
+  }
+
+  return features.slice(0, 3); // Limiter à 3 caractéristiques
 };
 
 // Couleur de la catégorie
 const categoryColor = computed(() => {
-  return props.property.type_offre === 'vente' ? 'deep-purple-6' : 'blue-6';
+  if (isParcelle.value) {
+    return 'green-6'; // Vert pour les terrains
+  } else {
+    return 'deep-purple-6'; // Violet pour les maisons
+  }
 });
 
-// Couleur du standing
-const standingColor = computed(() => {
-  switch(props.property.standing) {
-    case 'luxe': return 'amber-6';
-    case 'standard': return 'green-6';
-    case 'economique': return 'blue-6';
+// Label de catégorie
+const getCategoryLabel = computed(() => {
+  if (isParcelle.value) {
+    return 'Terrain';
+  } else {
+    return props.property.type_offre === 'vente' ? 'À vendre' : 'À louer';
+  }
+});
+
+// Couleur du statut
+const statusColor = computed(() => {
+  const statut = props.property.statut;
+  if (!statut) return 'grey-6';
+
+  switch(statut.toLowerCase()) {
+    case 'disponible': return 'green-6';
+    case 'vendu': return 'red-6';
+    case 'indisponible': return 'orange-6';
+    case 'réservé': return 'amber-6';
     default: return 'grey-6';
   }
 });
-
-// Label du standing
-const getStandingLabel = (standing) => {
-  switch(standing) {
-    case 'luxe': return 'Luxe';
-    case 'standard': return 'Standard';
-    case 'economique': return 'Économique';
-    default: return standing;
-  }
-};
 
 // Icônes pour les caractéristiques
 const getFeatureIcon = (feature) => {
@@ -215,7 +279,19 @@ const getFeatureIcon = (feature) => {
     'chambres': 'bed',
     'salles de bain': 'bathtub',
     'chambre': 'bed',
-    'salle de bain': 'bathtub'
+    'salle de bain': 'bathtub',
+    'urbain': 'location_city',
+    'résidentiel': 'home',
+    'commercial': 'store',
+    'm²': 'square_foot',
+    'Goma': 'location_on',
+    'Katindo': 'location_on',
+    'Terrain': 'landscape',
+    'parcelle': 'map',
+    'villa': 'villa',
+    'appartement': 'apartment',
+    'studio': 'meeting_room',
+    'maison': 'house'
   };
 
   // Chercher une correspondance partielle
@@ -228,19 +304,38 @@ const getFeatureIcon = (feature) => {
   return 'check';
 };
 
-// Navigation vers les détails
+// Navigation vers les détails - UNE SEULE FONCTION
 const viewDetails = () => {
-  router.push({
-    name: 'property-details',
-    params: { id: props.property.id }
-  });
+  // Vérifier si c'est une parcelle ou une maison
+  if (isParcelle.value) {
+    // Rediriger vers la page des détails de parcelle
+    router.push({
+      name: 'parcelle-details',
+      params: { id: props.property.id }
+    });
+  } else {
+    // Rediriger vers la page des détails de propriété
+    router.push({
+      name: 'property-details',
+      params: { id: props.property.id }
+    });
+  }
 };
 
 // Contacter le propriétaire
 const contactOwner = () => {
-  console.log('Contacter le propriétaire pour la propriété:', props.property.id);
-  // Ici vous pouvez implémenter la logique de contact
-  // Par exemple, ouvrir un modal ou rediriger vers une page de contact
+  console.log('Contacter le propriétaire pour:', props.property.name);
+
+  if (isParcelle.value) {
+    // Pour les terrains - logique spécifique
+    console.log('Terrain ID:', props.property.id);
+    // Vous pouvez rediriger vers une page de contact spécifique
+    // router.push({ name: 'contact-parcelle', params: { id: props.property.id } });
+  } else {
+    // Pour les maisons - logique spécifique
+    console.log('Maison ID:', props.property.id);
+    // router.push({ name: 'contact-property', params: { id: props.property.id } });
+  }
 };
 </script>
 
@@ -276,11 +371,12 @@ const contactOwner = () => {
 }
 
 /* Badge Standing */
-.standing-badge {
+.status-badge {
   padding: 4px 8px;
   border-radius: 12px;
   font-size: 0.7rem;
   font-weight: bold;
+  text-transform: uppercase;
 }
 
 /* Overlay d'image */

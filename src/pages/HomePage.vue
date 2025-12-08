@@ -141,8 +141,8 @@
                     <div class="text-caption text-grey-7 text-center">À vendre</div>
                   </div>
                   <div class="col">
-                    <div class="text-h5 text-deep-purple-9 text-weight-bold text-center">{{ forRentCount }}</div>
-                    <div class="text-caption text-grey-7 text-center">À louer</div>
+                    <div class="text-h5 text-deep-purple-9 text-weight-bold text-center">{{ availableLandCount }}</div>
+                    <div class="text-caption text-grey-7 text-center">Terrains disponibles</div>
                   </div>
                   <div class="col">
                     <div class="text-h5 text-deep-purple-9 text-weight-bold text-center">{{ uniqueCities.length }}</div>
@@ -240,32 +240,21 @@
 
           <!-- Navigation par catégorie -->
           <div class="category-tabs q-mb-lg">
-            <q-tabs
-              v-model="activeCategory"
-              inline-label
-              class="text-deep-purple-9"
-              active-color="deep-purple-7"
-              indicator-color="amber-6"
-            >
-              <q-tab
-                name="all"
-                icon="all_inclusive"
-                label="Tous les biens"
-                :ripple="false"
-              />
-              <q-tab
-                name="houses"
-                icon="house"
-                label="Maisons"
-                :ripple="false"
-              />
-              <q-tab
-                name="land"
-                icon="map"
-                label="Terrains"
-                :ripple="false"
-              />
-            </q-tabs>
+            <!-- Dans la section navigation -->
+<q-tabs v-model="activeCategory">
+  <q-tab
+    name="houses"
+    icon="house"
+    label="Maisons"
+    @click="$router.push('/properties')"
+  />
+  <q-tab
+    name="land"
+    icon="landscape"
+    label="Terrains"
+    @click="$router.push('/parcelles')"
+  />
+</q-tabs>
           </div>
 
           <!-- Grille de propriétés en cartes carrées -->
@@ -375,11 +364,11 @@
                 <div class="grid-row">
                   <!-- Première ligne (max 3 cartes) -->
                   <div
-                    v-for="property in filteredLand.slice(0, 3)"
-                    :key="property.id"
+                    v-for="parcelle in filteredLand.slice(0, 3)"
+                    :key="parcelle.id"
                     class="grid-item"
                   >
-                    <PropertyCardSquare :property="property" />
+                    <PropertyCardSquare :property="parcelle" />
                   </div>
 
                   <!-- Placeholders si moins de 3 terrains -->
@@ -402,11 +391,11 @@
                 <!-- Deuxième ligne (max 3 cartes suivantes) -->
                 <div v-if="filteredLand.length > 3" class="grid-row">
                   <div
-                    v-for="property in filteredLand.slice(3, 6)"
-                    :key="property.id"
+                    v-for="parcelle in filteredLand.slice(3, 6)"
+                    :key="parcelle.id"
                     class="grid-item"
                   >
-                    <PropertyCardSquare :property="property" />
+                    <PropertyCardSquare :property="parcelle" />
                   </div>
 
                   <!-- Placeholders si moins de 3 terrains sur la deuxième ligne -->
@@ -440,11 +429,11 @@
                   <div v-if="showAllLand" class="additional-properties q-mt-md">
                     <div class="grid-row">
                       <div
-                        v-for="property in filteredLand.slice(6)"
-                        :key="property.id"
+                        v-for="parcelle in filteredLand.slice(6)"
+                        :key="parcelle.id"
                         class="grid-item"
                       >
-                        <PropertyCardSquare :property="property" />
+                        <PropertyCardSquare :property="parcelle" />
                       </div>
                     </div>
                   </div>
@@ -488,107 +477,148 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { usePropertiesStore } from 'src/stores/properties'
+import { useParcellesStore } from 'src/stores/parcelles' // Importez le store des parcelles
 import PropertyCardSquare from 'src/components/PropertyCardSquare.vue'
 import FooterBar from 'src/components/FooterBar.vue'
 import SearchWidget from 'src/components/SearchWidget.vue'
 
-// Utilisation du store
+// Utilisation des stores
 const propertiesStore = usePropertiesStore()
+const parcellesStore = useParcellesStore() // Initialisez le store des parcelles
 const loading = ref(true)
 const searchTerm = ref('')
 const activeCategory = ref('all')
 const showAllHouses = ref(false)
 const showAllLand = ref(false)
 
-// Computed properties basées sur les vraies données
+// Computed properties pour les maisons
 const allProperties = computed(() => {
   return propertiesStore.formattedProperties || []
 })
 
-const filteredProperties = computed(() => {
-  const term = searchTerm.value.toLowerCase().trim()
-  if (!term) {
-    return allProperties.value
-  }
-
-  return allProperties.value.filter(property => {
-    return (
-      property.name?.toLowerCase().includes(term) ||
-      property.description?.toLowerCase().includes(term) ||
-      property.location?.toLowerCase().includes(term) ||
-      property.price?.toLowerCase().includes(term)
-    )
-  })
+// Computed properties pour les parcelles
+const allParcelles = computed(() => {
+  return parcellesStore.formattedParcelles || []
 })
 
 // Maisons filtrées (avec recherche si appliquée)
 const filteredHouses = computed(() => {
-  const properties = activeFilters.value.ville
-    ? filteredProperties.value
-    : allProperties.value
+  const term = searchTerm.value.toLowerCase().trim()
 
-  return properties.filter(property =>
-    property.category === 'Maison' ||
-    property.type_maison === 'appartement' ||
-    property.type_maison === 'villa'
-  )
+  if (!term) {
+    return allProperties.value.filter(property =>
+      property.category === 'Maison' ||
+      property.type_maison === 'appartement' ||
+      property.type_maison === 'villa'
+    )
+  }
+
+  return allProperties.value.filter(property => {
+    const isHouse = property.category === 'Maison' ||
+                   property.type_maison === 'appartement' ||
+                   property.type_maison === 'villa'
+
+    if (!isHouse) return false
+
+    return (
+      property.name?.toLowerCase().includes(term) ||
+      property.description?.toLowerCase().includes(term) ||
+      property.location?.toLowerCase().includes(term) ||
+      property.price?.toLowerCase().includes(term) ||
+      property.original?.parcelle?.ville?.toLowerCase().includes(term)
+    )
+  })
 })
 
-// Terrains filtrés (placeholders pour l'instant)
+// Terrains filtrés (avec recherche si appliquée)
 const filteredLand = computed(() => {
-  // Pour l'instant, retourner un tableau vide car nous n'avons pas d'API pour les terrains
-  // Vous pouvez ajouter une API /api/terrains plus tard
-  return []
+  const term = searchTerm.value.toLowerCase().trim()
+
+  if (!term) {
+    return allParcelles.value
+  }
+
+  return allParcelles.value.filter(parcelle => {
+    return (
+      parcelle.name?.toLowerCase().includes(term) ||
+      parcelle.description?.toLowerCase().includes(term) ||
+      parcelle.location?.toLowerCase().includes(term) ||
+      parcelle.ville?.toLowerCase().includes(term) ||
+      parcelle.quartier?.toLowerCase().includes(term) ||
+      parcelle.type?.toLowerCase().includes(term) ||
+      parcelle.priceFormatted?.toLowerCase().includes(term)
+    )
+  })
 })
 
 // Filtres actifs
-const activeFilters = computed(() => {
-  return {}
-})
+// const activeFilters = computed(() => {
+//   return {}
+// })
 
-// Statistiques
+// Statistiques MAJ
 const totalProperties = computed(() => {
-  return allProperties.value.length
+  const housesCount = filteredHouses.value.length
+  const landCount = filteredLand.value.length
+  return housesCount + landCount
 })
 
 const forSaleCount = computed(() => {
-  return allProperties.value.filter(p => p.type_offre === 'vente').length
+  const housesForSale = filteredHouses.value.filter(p => p.type_offre === 'vente').length
+  const landForSale = filteredLand.value.filter(p => p.statut === 'disponible').length
+  return housesForSale + landForSale
 })
 
-const forRentCount = computed(() => {
-  return allProperties.value.filter(p => p.type_offre === 'location').length
+const availableLandCount = computed(() => {
+  return filteredLand.value.filter(p => p.statut === 'disponible').length
 })
 
 const uniqueCities = computed(() => {
-  const cities = allProperties.value
+  const houseCities = filteredHouses.value
     .map(p => p.original?.parcelle?.ville)
     .filter(Boolean)
-    .filter((value, index, self) => self.indexOf(value) === index)
-  return cities
+  const landCities = filteredLand.value
+    .map(p => p.ville)
+    .filter(Boolean)
+
+  return [...new Set([...houseCities, ...landCities])]
 })
 
 const handleSearch = (filters) => {
   console.log('🔍 Recherche avec filtres:', filters)
-  // Vous pouvez implémenter la logique de filtrage ici
+  searchTerm.value = filters.search || ''
+
+  // Vous pouvez ajouter plus de filtres ici
+  if (filters.ville) {
+    // Filtrer par ville
+    // Implémentez selon vos besoins
+  }
 }
 
 // Charger les données au montage
 onMounted(async () => {
   try {
-    // Si les données ne sont pas déjà chargées, les charger
-    if (propertiesStore.houses.length === 0) {
-      await propertiesStore.fetchHouses()
-    }
+    loading.value = true
+
+    // Charger les données en parallèle
+    await Promise.all([
+      // Si les maisons ne sont pas déjà chargées, les charger
+      propertiesStore.houses.length === 0 ? propertiesStore.fetchHouses() : Promise.resolve(),
+
+      // Charger les parcelles
+      parcellesStore.fetchParcelles()
+    ])
+
+    console.log('✅ Données chargées avec succès:', {
+      maisons: filteredHouses.value.length,
+      parcelles: filteredLand.value.length,
+      total: totalProperties.value
+    })
+
   } catch (error) {
-    console.error('Erreur chargement données:', error)
+    console.error('❌ Erreur chargement données:', error)
   } finally {
     loading.value = false
-    console.log('🏠 Données chargées:', {
-      total: allProperties.value.length,
-      maisons: filteredHouses.value.length,
-      terrains: filteredLand.value.length,
-      villes: uniqueCities.value
-    })
   }
 })
 </script>

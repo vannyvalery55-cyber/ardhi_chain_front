@@ -74,32 +74,21 @@ const routes = [
     ]
   },
 
-  // Route pour l'admin (exemple)
-  // {
-  //   path: '/admin',
-  //   component: () => import('layouts/AdminLayout.vue'),
-  //   meta: {
-  //     requiresAuth: true,
-  //     requiresAdmin: true
-  //   },
-  //   children: [
-  //     {
-  //       path: '',
-  //       name: 'admin-dashboard',
-  //       component: () => import('pages/admin/DashboardPage.vue')
-  //     },
-  //     {
-  //       path: 'properties',
-  //       name: 'admin-properties',
-  //       component: () => import('pages/admin/PropertiesPage.vue')
-  //     },
-  //     {
-  //       path: 'users',
-  //       name: 'admin-users',
-  //       component: () => import('pages/admin/UsersPage.vue')
-  //     }
-  //   ]
-  // },
+  {
+    path: '/parcelles',
+    name: 'parcelles',
+    component: () => import('pages/ParcellesPage.vue')
+  },
+  {
+    path: '/parcelles/:id',
+    name: 'parcelle-details',
+    component: () => import('pages/ParcelleDetailsPage.vue')
+  },
+  {
+    path: '/properties/:id',
+    name: 'property-details',
+    component: () => import('pages/PropertyDetailsPage.vue')
+  },
 
   // Route 404 (doit rester la dernière)
   {
