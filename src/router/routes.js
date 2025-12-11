@@ -1,4 +1,5 @@
 const routes = [
+  // Routes avec MainLayout (pour la plupart des pages)
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
@@ -9,13 +10,11 @@ const routes = [
         name: 'home',
         component: () => import('pages/HomePage.vue')
       },
-   {
-    path: '/dashboard',
-    name: 'dashboard',
-    component: () => import('pages/BuyerDashboard.vue'),
-  },
-  
-      // Route pour les détails de la propriété
+      {
+        path: 'dashboard',
+        name: 'dashboard',
+        component: () => import('pages/BuyerDashboard.vue')
+      },
       {
         path: 'property/:id',
         name: 'property-details',
@@ -24,7 +23,6 @@ const routes = [
           requiresAuth: false // Laisser accessible sans connexion
         }
       },
-
       // Route : Ajouter Bien
       {
         path: 'add-property',
@@ -35,7 +33,6 @@ const routes = [
           title: 'Ajouter un bien'
         }
       },
-
       // Route : Mon Compte
       {
         path: 'account',
@@ -45,9 +42,18 @@ const routes = [
           requiresAuth: true, // Nécessite une connexion
           title: 'Mon compte'
         }
-      },
-
+      }
     ]
+  },
+
+  // Route Wallet SANS MainLayout
+  {
+    path: '/wallet',
+    name: 'Wallet',
+    component: () => import('pages/Wallet.vue'),
+    meta: {
+      title: 'Mon Portefeuille',
+    }
   },
 
   // Layout minimal pour l'authentification
@@ -65,7 +71,6 @@ const routes = [
           title: 'Connexion'
         }
       },
-
       // Route d'inscription
       {
         path: 'register',
@@ -75,10 +80,11 @@ const routes = [
           requiresGuest: true,
           title: 'Inscription'
         }
-      },
+      }
     ]
   },
 
+  // Routes indépendantes sans layout
   {
     path: '/parcelles',
     name: 'parcelles',
