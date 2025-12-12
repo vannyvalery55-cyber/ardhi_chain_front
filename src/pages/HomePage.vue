@@ -6,12 +6,8 @@
 
       <div class="hero-content text-center q-pa-xl" style="z-index: 2">
         <!-- Badge d'accroche -->
-        <q-badge
-          rounded
-          color="amber-6"
-          class="q-px-md q-py-xs q-mb-lg text-caption text-weight-bold"
-          label="INNOVATION BLOCKCHAIN"
-        />
+        <q-badge rounded color="amber-6" class="q-px-md q-py-xs q-mb-lg text-caption text-weight-bold"
+          label="INNOVATION BLOCKCHAIN" />
 
         <!-- Titre principal -->
         <div class="text-h2 text-white q-mb-md text-weight-bold hero-title">ARDHI-CHAIN</div>
@@ -21,10 +17,7 @@
         </div>
 
         <!-- Description améliorée -->
-        <div
-          class="text-body1 text-white q-mb-xl hero-description"
-          style="max-width: 900px; margin: auto"
-        >
+        <div class="text-body1 text-white q-mb-xl hero-description" style="max-width: 900px; margin: auto">
           **ARDHI-CHAIN** révolutionne la sécurité foncière à Goma grâce à la puissance de la
           blockchain Cardano. Chaque titre de propriété est transformé en **NFT unique**,
           garantissant une **Preuve de Propriété (PoP)** infalsifiable et immuable. Notre plateforme
@@ -34,11 +27,7 @@
 
         <!-- Widget de recherche amélioré -->
         <div class="search-container q-mt-xl" style="max-width: 800px; margin: auto">
-          <SearchWidget
-            v-model:modelValue="searchTerm"
-            @search="handleSearch"
-            class="elevated-search"
-          />
+          <SearchWidget v-model:modelValue="searchTerm" @search="handleSearch" class="elevated-search" />
         </div>
 
         <!-- Indicateur de scroll -->
@@ -65,12 +54,7 @@
               <div class="col-12 col-md-5 text-center">
                 <div class="logo-display q-mb-lg">
                   <div class="logo-icon q-mb-md">
-                    <q-icon
-                      name="account_balance"
-                      size="xl"
-                      color="deep-purple-7"
-                      class="logo-animation"
-                    />
+                    <q-icon name="account_balance" size="xl" color="deep-purple-7" class="logo-animation" />
                   </div>
                   <div class="text-h4 text-deep-purple-8 text-weight-bold q-mb-sm">ARDHI-CHAIN</div>
                   <q-chip color="amber-1" text-color="amber-9" class="q-mb-lg">
@@ -81,14 +65,9 @@
 
                 <q-img
                   src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                  alt="Sécurité Foncière Blockchain"
-                  class="rounded-borders shadow-5"
-                  style="height: 300px"
-                  placeholder-src="https://placehold.co/800x400/a392e2/ffffff?text=Securite+Blockchain"
-                >
-                  <div
-                    class="absolute-bottom text-subtitle2 text-center q-pa-sm bg-deep-purple-9 text-white"
-                  >
+                  alt="Sécurité Foncière Blockchain" class="rounded-borders shadow-5" style="height: 300px"
+                  placeholder-src="https://placehold.co/800x400/a392e2/ffffff?text=Securite+Blockchain">
+                  <div class="absolute-bottom text-subtitle2 text-center q-pa-sm bg-deep-purple-9 text-white">
                     {{ totalProperties }} biens sécurisés par la Blockchain Cardano
                   </div>
                 </q-img>
@@ -252,28 +231,15 @@
           <div class="category-tabs q-mb-lg">
             <!-- Dans la section navigation -->
             <q-tabs v-model="activeCategory">
-              <q-tab
-                name="houses"
-                icon="house"
-                label="Maisons"
-                @click="$router.push('/properties')"
-              />
-              <q-tab
-                name="land"
-                icon="landscape"
-                label="Terrains"
-                @click="$router.push('/parcelles')"
-              />
+              <q-tab name="houses" icon="house" label="Maisons" @click="$router.push('/properties')" />
+              <q-tab name="land" icon="landscape" label="Terrains" @click="$router.push('/parcelles')" />
             </q-tabs>
           </div>
 
           <!-- Grille de propriétés en cartes carrées -->
           <div class="properties-grid-container q-mb-xl">
             <!-- Maisons et Appartements -->
-            <div
-              v-if="activeCategory === 'all' || activeCategory === 'houses'"
-              class="category-section q-mb-xl"
-            >
+            <div v-if="activeCategory === 'all' || activeCategory === 'houses'" class="category-section q-mb-xl">
               <div class="text-h5 text-deep-purple-9 q-mb-md">
                 <q-icon name="house" color="deep-purple-7" class="q-mr-sm" />
                 Maisons et Appartements ({{ filteredHouses.length }})
@@ -282,21 +248,14 @@
               <div v-if="filteredHouses.length > 0" class="properties-grid">
                 <div class="grid-row">
                   <!-- Première ligne (max 3 cartes) -->
-                  <div
-                    v-for="property in filteredHouses.slice(0, 3)"
-                    :key="property.id"
-                    class="grid-item"
-                  >
+                  <div v-for="property in filteredHouses.slice(0, 3)" :key="property.id" class="grid-item">
                     <PropertyCardSquare :property="property" />
                   </div>
 
                   <!-- Placeholders si moins de 3 maisons -->
                   <template v-if="filteredHouses.length < 3">
-                    <div
-                      v-for="n in 3 - filteredHouses.length"
-                      :key="`placeholder-${n}`"
-                      class="grid-item placeholder-card"
-                    >
+                    <div v-for="n in 3 - filteredHouses.length" :key="`placeholder-${n}`"
+                      class="grid-item placeholder-card">
                       <q-card class="empty-property-card" flat>
                         <div class="text-center q-pa-xl">
                           <q-icon name="add_circle" size="xl" color="grey-4" />
@@ -309,21 +268,14 @@
 
                 <!-- Deuxième ligne (max 3 cartes suivantes) -->
                 <div v-if="filteredHouses.length > 3" class="grid-row">
-                  <div
-                    v-for="property in filteredHouses.slice(3, 6)"
-                    :key="property.id"
-                    class="grid-item"
-                  >
+                  <div v-for="property in filteredHouses.slice(3, 6)" :key="property.id" class="grid-item">
                     <PropertyCardSquare :property="property" />
                   </div>
 
                   <!-- Placeholders si moins de 3 maisons sur la deuxième ligne -->
                   <template v-if="filteredHouses.length < 6">
-                    <div
-                      v-for="n in 6 - Math.min(filteredHouses.length, 6)"
-                      :key="`placeholder2-${n}`"
-                      class="grid-item placeholder-card"
-                    >
+                    <div v-for="n in 6 - Math.min(filteredHouses.length, 6)" :key="`placeholder2-${n}`"
+                      class="grid-item placeholder-card">
                       <q-card class="empty-property-card" flat>
                         <div class="text-center q-pa-xl">
                           <q-icon name="add_circle" size="xl" color="grey-4" />
@@ -336,22 +288,14 @@
 
                 <!-- Bouton Voir Plus si plus de 6 maisons -->
                 <div v-if="filteredHouses.length > 6" class="text-center q-mt-md">
-                  <q-btn
-                    flat
-                    color="deep-purple-7"
-                    :label="showAllHouses ? 'Voir moins' : 'Voir plus de maisons'"
+                  <q-btn flat color="deep-purple-7" :label="showAllHouses ? 'Voir moins' : 'Voir plus de maisons'"
                     :icon-right="showAllHouses ? 'expand_less' : 'expand_more'"
-                    @click="showAllHouses = !showAllHouses"
-                  />
+                    @click="showAllHouses = !showAllHouses" />
 
                   <!-- Affichage des maisons supplémentaires -->
                   <div v-if="showAllHouses" class="additional-properties q-mt-md">
                     <div class="grid-row">
-                      <div
-                        v-for="property in filteredHouses.slice(6)"
-                        :key="property.id"
-                        class="grid-item"
-                      >
+                      <div v-for="property in filteredHouses.slice(6)" :key="property.id" class="grid-item">
                         <PropertyCardSquare :property="property" />
                       </div>
                     </div>
@@ -369,10 +313,7 @@
             </div>
 
             <!-- Terrains et Parcelles -->
-            <div
-              v-if="activeCategory === 'all' || activeCategory === 'land'"
-              class="category-section q-mb-xl"
-            >
+            <div v-if="activeCategory === 'all' || activeCategory === 'land'" class="category-section q-mb-xl">
               <div class="text-h5 text-deep-purple-9 q-mb-md">
                 <q-icon name="map" color="teal-7" class="q-mr-sm" />
                 Terrains et Parcelles ({{ filteredLand.length }})
@@ -381,21 +322,14 @@
               <div v-if="filteredLand.length > 0" class="properties-grid">
                 <div class="grid-row">
                   <!-- Première ligne (max 3 cartes) -->
-                  <div
-                    v-for="parcelle in filteredLand.slice(0, 3)"
-                    :key="parcelle.id"
-                    class="grid-item"
-                  >
+                  <div v-for="parcelle in filteredLand.slice(0, 3)" :key="parcelle.id" class="grid-item">
                     <PropertyCardSquare :property="parcelle" />
                   </div>
 
                   <!-- Placeholders si moins de 3 terrains -->
                   <template v-if="filteredLand.length < 3">
-                    <div
-                      v-for="n in 3 - filteredLand.length"
-                      :key="`placeholder-land-${n}`"
-                      class="grid-item placeholder-card"
-                    >
+                    <div v-for="n in 3 - filteredLand.length" :key="`placeholder-land-${n}`"
+                      class="grid-item placeholder-card">
                       <q-card class="empty-property-card" flat>
                         <div class="text-center q-pa-xl">
                           <q-icon name="add_circle" size="xl" color="grey-4" />
@@ -410,21 +344,14 @@
 
                 <!-- Deuxième ligne (max 3 cartes suivantes) -->
                 <div v-if="filteredLand.length > 3" class="grid-row">
-                  <div
-                    v-for="parcelle in filteredLand.slice(3, 6)"
-                    :key="parcelle.id"
-                    class="grid-item"
-                  >
+                  <div v-for="parcelle in filteredLand.slice(3, 6)" :key="parcelle.id" class="grid-item">
                     <PropertyCardSquare :property="parcelle" />
                   </div>
 
                   <!-- Placeholders si moins de 3 terrains sur la deuxième ligne -->
                   <template v-if="filteredLand.length < 6">
-                    <div
-                      v-for="n in 6 - Math.min(filteredLand.length, 6)"
-                      :key="`placeholder-land2-${n}`"
-                      class="grid-item placeholder-card"
-                    >
+                    <div v-for="n in 6 - Math.min(filteredLand.length, 6)" :key="`placeholder-land2-${n}`"
+                      class="grid-item placeholder-card">
                       <q-card class="empty-property-card" flat>
                         <div class="text-center q-pa-xl">
                           <q-icon name="add_circle" size="xl" color="grey-4" />
@@ -437,22 +364,13 @@
 
                 <!-- Bouton Voir Plus si plus de 6 terrains -->
                 <div v-if="filteredLand.length > 6" class="text-center q-mt-md">
-                  <q-btn
-                    flat
-                    color="teal-7"
-                    :label="showAllLand ? 'Voir moins' : 'Voir plus de terrains'"
-                    :icon-right="showAllLand ? 'expand_less' : 'expand_more'"
-                    @click="showAllLand = !showAllLand"
-                  />
+                  <q-btn flat color="teal-7" :label="showAllLand ? 'Voir moins' : 'Voir plus de terrains'"
+                    :icon-right="showAllLand ? 'expand_less' : 'expand_more'" @click="showAllLand = !showAllLand" />
 
                   <!-- Affichage des terrains supplémentaires -->
                   <div v-if="showAllLand" class="additional-properties q-mt-md">
                     <div class="grid-row">
-                      <div
-                        v-for="parcelle in filteredLand.slice(6)"
-                        :key="parcelle.id"
-                        class="grid-item"
-                      >
+                      <div v-for="parcelle in filteredLand.slice(6)" :key="parcelle.id" class="grid-item">
                         <PropertyCardSquare :property="parcelle" />
                       </div>
                     </div>
@@ -478,14 +396,12 @@
                   <q-icon name="location_on" color="red-7" class="q-mr-sm" />
                   Vue Globale sur Carte
                 </div>
-                <!-- Note: Vous devrez implémenter MapView ou le retirer temporairement -->
-                <div class="map-container text-center q-pa-xl bg-grey-3 rounded-borders">
-                  <q-icon name="map" size="xl" color="grey-6" class="q-mb-sm" />
-                  <div class="text-h6 text-grey-7">Carte interactive à venir</div>
-                  <div class="text-caption text-grey-5">
-                    Visualisation géographique des propriétés
-                  </div>
-                </div>
+
+                <!-- Intégration du composant MapView -->
+                <MapView
+                  :houses="allProperties"
+                  :parcels="allParcelles"
+                />
               </q-card-section>
             </q-card>
           </div>
@@ -501,14 +417,15 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { usePropertiesStore } from 'src/stores/properties'
-import { useParcellesStore } from 'src/stores/parcelles' // Importez le store des parcelles
+import { useParcellesStore } from 'src/stores/parcelles'
 import PropertyCardSquare from 'src/components/PropertyCardSquare.vue'
 import FooterBar from 'src/components/FooterBar.vue'
 import SearchWidget from 'src/components/SearchWidget.vue'
+import MapView from 'src/components/MapView.vue' // Import du composant MapView
 
 // Utilisation des stores
 const propertiesStore = usePropertiesStore()
-const parcellesStore = useParcellesStore() // Initialisez le store des parcelles
+const parcellesStore = useParcellesStore()
 const loading = ref(true)
 const searchTerm = ref('')
 const activeCategory = ref('all')
@@ -662,8 +579,7 @@ onMounted(async () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: url('https://images.unsplash.com/photo-1570129477492-45c003edd2be?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')
-  center/cover;
+  background: url('https://images.unsplash.com/photo-1570129477492-45c003edd2be?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover;
   opacity: 0.1;
   z-index: 1;
 }
@@ -795,16 +711,6 @@ onMounted(async () => {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
-.map-container {
-  height: 400px;
-  border-radius: 12px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
 /* Additional Properties */
 .additional-properties {
   animation: fadeIn 0.5s ease;
@@ -815,6 +721,7 @@ onMounted(async () => {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -827,6 +734,7 @@ onMounted(async () => {
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -838,6 +746,7 @@ onMounted(async () => {
     opacity: 0;
     transform: translateY(50px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -845,6 +754,7 @@ onMounted(async () => {
 }
 
 @keyframes bounce {
+
   0%,
   20%,
   50%,
@@ -852,9 +762,11 @@ onMounted(async () => {
   100% {
     transform: translateY(0);
   }
+
   40% {
     transform: translateY(-10px);
   }
+
   60% {
     transform: translateY(-5px);
   }
@@ -869,9 +781,11 @@ onMounted(async () => {
   0% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.1);
   }
+
   100% {
     transform: scale(1);
   }
@@ -944,6 +858,94 @@ onMounted(async () => {
   .category-tabs .q-tab {
     min-width: 100px;
     padding: 8px 12px;
+  }
+}
+
+/* Styles pour la carte */
+:deep(.ardhi-map) {
+  height: 500px;
+  width: 100%;
+  border-radius: 8px;
+  z-index: 1;
+}
+
+:deep(.map-placeholder) {
+  height: 500px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+:deep(.map-controls) {
+  background: white;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+:deep(.legend-circle) {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+:deep(.legend-circle.house) {
+  background-color: #4CAF50;
+}
+
+:deep(.legend-circle.apartment) {
+  background-color: #2196F3;
+}
+
+:deep(.legend-circle.land) {
+  background-color: #795548;
+}
+
+:deep(.legend-circle.commercial) {
+  background-color: #FF9800;
+}
+
+/* Animation pour les marqueurs */
+@keyframes markerPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+  }
+}
+
+:deep(.property-marker) {
+  animation: markerPulse 2s infinite;
+}
+
+/* Responsive pour la carte */
+@media (max-width: 768px) {
+  :deep(.ardhi-map) {
+    height: 400px;
+  }
+
+  :deep(.map-placeholder) {
+    height: 400px;
+  }
+}
+
+@media (max-width: 576px) {
+  :deep(.ardhi-map) {
+    height: 350px;
+  }
+
+  :deep(.map-placeholder) {
+    height: 350px;
   }
 }
 </style>

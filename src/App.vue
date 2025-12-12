@@ -6,9 +6,9 @@
         <q-spinner-gears color="primary" size="3em" />
         <p class="q-mt-md text-grey-7">Chargement de l'application...</p>
       </div>
-      
+
       <!-- Header avec menu -->
-      
+
       <!-- Navigation drawer -->
       <q-drawer
         v-model="leftDrawerOpen"
@@ -45,9 +45,9 @@
           </q-item>
 
           <!-- Lien vers la page Wallet existante -->
-          <q-item 
-            clickable 
-            v-ripple 
+          <q-item
+            clickable
+            v-ripple
             :to="{ name: 'Wallet' }"
             active-class="active-menu-item"
           >
@@ -72,10 +72,10 @@
 
           <!-- Section Cardano -->
           <q-item-label header>Cardano Wallet</q-item-label>
-          
-          <q-item 
-            clickable 
-            v-ripple 
+
+          <q-item
+            clickable
+            v-ripple
             @click="handleWalletConnectSimple"
             :disable="walletLoading"
           >
@@ -88,15 +88,15 @@
             </q-item-section>
             <q-item-section side>
               <q-spinner v-if="walletLoading" size="sm" />
-              <q-icon v-else :name="cardanoConnected ? 'check_circle' : 'radio_button_unchecked'" 
+              <q-icon v-else :name="cardanoConnected ? 'check_circle' : 'radio_button_unchecked'"
                      :color="cardanoConnected ? 'positive' : 'grey'" />
             </q-item-section>
           </q-item>
 
-          <q-item 
-            clickable 
-            v-ripple 
-            :to="{ name: 'Transactions' }" 
+          <q-item
+            clickable
+            v-ripple
+            :to="{ name: 'Transactions' }"
             v-if="cardanoConnected"
           >
             <q-item-section avatar>
@@ -108,9 +108,9 @@
             </q-item-section>
           </q-item>
 
-          <q-item 
-            clickable 
-            v-ripple 
+          <q-item
+            clickable
+            v-ripple
             v-if="cardanoConnected"
             @click="goToWalletSend"
           >
@@ -123,9 +123,9 @@
             </q-item-section>
           </q-item>
 
-          <q-item 
-            clickable 
-            v-ripple 
+          <q-item
+            clickable
+            v-ripple
             v-if="cardanoConnected"
             @click="goToWalletReceive"
           >
@@ -142,7 +142,7 @@
 
           <!-- Outils -->
           <q-item-label header>Outils</q-item-label>
-          
+
           <q-item clickable v-ripple>
             <q-item-section avatar>
               <q-icon name="info" />
@@ -180,10 +180,10 @@
           {{ cardanoBalance }}
         </q-badge>
       </q-btn>
-      
+
       <q-page-container>
         <router-view v-if="!appLoading" />
-        
+
         <div v-if="appLoading" class="loading-placeholder"></div>
       </q-page-container>
     </q-layout>
@@ -262,7 +262,7 @@ const cborToAddress = (rawAddress) => {
         console.error('❌ cborToAddress: Type de donnée non supporté pour la conversion.');
         return null;
     }
-    
+
     // VÉRIFICATION FINALE
     if (!(addressBytes instanceof Uint8Array) || addressBytes.length === 0) {
         console.error('❌ Conversion finale en Uint8Array échouée.');
@@ -278,19 +278,19 @@ const cborToAddress = (rawAddress) => {
         } catch (e) {
             console.warn(`⚠️ Échec conversion directe (possiblement données inutiles) : ${e.message}`)
         }
-        
+
         // --- TENTATIVE 2 : Couper si l'adresse est trop longue (Contournement du "trailing data") ---
-        if (addressBytes.length > 50) { 
-            const suspectedAddressLength = 33; 
+        if (addressBytes.length > 50) {
+            const suspectedAddressLength = 33;
             const slicedBytes = addressBytes.slice(0, suspectedAddressLength);
-            
+
             console.log(`✂️ Tentative de coupe du CBOR à ${suspectedAddressLength} octets (longueur originale: ${addressBytes.length})`)
 
             const address = Address.from_bytes(slicedBytes)
             console.log('✅ Conversion CBOR après coupe réussie.')
             return address.to_bech32()
         }
-        
+
         return null;
 
     } catch (e) {
@@ -321,32 +321,32 @@ const goToWalletReceive = () => { router.push('/wallet'); setTimeout(() => { win
 const handleWalletConnectSimple = async () => {
   console.log('🎯 Début connexion wallet...')
   walletLoading.value = true
-  
+
   try {
     if (!window.cardano?.eternl) {
       throw new Error('Eternl Wallet non détecté. Installez-le depuis eternl.io')
     }
-    
+
     console.log('✅ Eternl détecté, activation...')
     const api = await window.cardano.eternl.enable()
     eternlApi.value = api
     console.log('✅ Eternl activé avec succès')
-    
+
     let address = ''
     let addressFound = false
-    
+
     // 1. Essayer getUsedAddresses (Adresses de réception/principales)
     if (typeof api.getUsedAddresses === 'function') {
       try {
         const addresses = await api.getUsedAddresses()
-        
+
         if (addresses && addresses.length > 0 && addresses[0]) {
           let rawAddress = addresses[0]
-          
-         
+
+
 
           const bech32Address = cborToAddress(rawAddress)
-          
+
           if (bech32Address) {
             address = bech32Address
             addressFound = true
@@ -358,12 +358,12 @@ const handleWalletConnectSimple = async () => {
         console.log('❌ getUsedAddresses échoué:', e.message)
       }
     }
-    
+
     // 2. Si pas d'adresse trouvée, essayer getChangeAddress
     if (!addressFound && typeof api.getChangeAddress === 'function') {
       try {
         const rawAddress = await api.getChangeAddress()
-        
+
         if (rawAddress) {
            const bech32Address = cborToAddress(rawAddress)
 
@@ -377,7 +377,7 @@ const handleWalletConnectSimple = async () => {
         console.log('❌ getChangeAddress échoué:', e.message)
       }
     }
-    
+
     // ... (Récupération du solde, du réseau, notifications) ...
     let balanceADA = 0
     // ... (Logique balance) ...
@@ -387,13 +387,13 @@ const handleWalletConnectSimple = async () => {
         const balanceNum = Number(balanceLovelace)
         if (!isNaN(balanceNum)) {
           balanceADA = balanceNum / 1000000
-        } 
+        }
       } catch (balanceError) {
         console.warn('⚠️ Impossible de récupérer le solde:', balanceError.message)
       }
     }
-    
-    let network = 'mainnet' 
+
+    let network = 'mainnet'
     // ... (Logique réseau) ...
     if (typeof api.getNetworkId === 'function') {
       try {
@@ -403,7 +403,7 @@ const handleWalletConnectSimple = async () => {
         console.warn('⚠️ Impossible de détecter le réseau:', networkError.message)
       }
     }
-    
+
     $q.notify({
       message: `Eternl connecté! ${balanceADA > 0 ? `Solde: ${balanceADA.toFixed(2)} ADA` : 'Connecté avec succès'}`,
       color: 'positive',
@@ -411,36 +411,36 @@ const handleWalletConnectSimple = async () => {
       timeout: 4000,
       icon: 'check_circle'
     })
-    
+
     // --- STOCKAGE PERSISTANT (FIN DE LA BOUCLE DE RAFRAÎCHISSEMENT) ---
     try {
       localStorage.setItem('cardanoConnected', 'true')
-      
+
       let addressToStore = ''
       if (address && typeof address === 'string' && (address.startsWith('addr1') || address.startsWith('stake1'))) {
         addressToStore = address.trim()
       } else {
         // Laisse 'addr_not_available' si la conversion finale a échoué.
-        addressToStore = 'addr_not_available' 
+        addressToStore = 'addr_not_available'
       }
-      
+
       localStorage.setItem('cardanoAddress', addressToStore)
       localStorage.setItem('cardanoBalance', balanceADA.toString())
       localStorage.setItem('cardanoNetwork', network)
       localStorage.setItem('cardanoApiAvailable', 'true')
       localStorage.setItem('cardanoLastUpdate', Date.now().toString())
-      
+
       console.log('✅ Données sauvegardées dans localStorage. Adresse finale:', addressToStore)
-      
+
       // Émettre un événement global pour informer Wallet.vue
       window.dispatchEvent(new CustomEvent('wallet-data-updated', {
         detail: { address: addressToStore, balance: balanceADA, network, timestamp: Date.now() }
       }))
-      
+
     } catch (storageError) {
       console.error('❌ Erreur sauvegarde localStorage:', storageError)
     }
-    
+
   } catch (error) {
     // ... (Gestion des erreurs de connexion) ...
     // ... (Le code de gestion des erreurs reste le même) ...
@@ -452,7 +452,7 @@ const handleWalletConnectSimple = async () => {
      } else if (error.message.includes('timeout')) {
        errorMessage = 'Temps d\'attente dépassé'
      }
-     
+
      $q.notify({
        message: `Erreur: ${errorMessage}`,
        color: 'negative',
@@ -474,15 +474,15 @@ const refreshWalletBalance = async () => {
     try {
       walletLoading.value = true
       const api = eternlApi.value
-      
+
       let balanceADA = 0
       if (typeof api.getBalance === 'function') {
         const balanceLovelace = await api.getBalance()
         balanceADA = Number(balanceLovelace) / 1000000
-        
+
         localStorage.setItem('cardanoBalance', balanceADA.toString())
         localStorage.setItem('cardanoLastUpdate', Date.now().toString())
-        
+
         window.dispatchEvent(new CustomEvent('wallet-balance-updated', {
           detail: { balance: balanceADA }
         }))
@@ -505,21 +505,21 @@ const refreshWalletBalance = async () => {
 // Initialisation
 const initApp = async () => {
   console.log('🚀 Initialisation application...')
-  
+
   setTimeout(() => {
     appLoading.value = false
     console.log('✅ Application prête')
-    
+
     const wasConnected = localStorage.getItem('cardanoConnected')
-    
+
     if (wasConnected === 'true' && window.cardano?.eternl) {
       window.cardano.eternl.isEnabled()
         .then(async enabled => {
           if (enabled) {
             console.log('🔄 Eternl toujours activé. Tentative de récupération API et synchronisation.')
-             
+
             try {
-              const api = await window.cardano.eternl.enable() 
+              const api = await window.cardano.eternl.enable()
               eternlApi.value = api
               if (api) {
                   handleWalletConnectSimple();
@@ -540,11 +540,11 @@ const initApp = async () => {
 // Exposer des fonctions de test et gérer les événements globaux
 onMounted(() => {
   initApp()
-  
+
   // Événements d'écoute pour la synchronisation
   window.addEventListener('trigger-wallet-connect', handleWalletConnectSimple)
   window.addEventListener('trigger-wallet-refresh', refreshWalletBalance)
-  
+
   // Fonctions de debug (conservées)
   window.debugLocalStorage = () => { /* ... */ }
   window.testEternlApi = async () => { /* ... */ }
