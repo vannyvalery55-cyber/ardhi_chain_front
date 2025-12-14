@@ -438,7 +438,7 @@ const isConfirmPasswordVisible = ref(false)
 const forgotPasswordDialog = ref(false)
 
 // Types d'utilisateurs
-const userTypes = ['Locateur', 'Acheteur', 'proprietaire']
+const userTypes = ['Locataire', 'Acheteur', 'proprietaire']
 
 // Formulaire de connexion
 const loginForm = reactive({
@@ -448,7 +448,7 @@ const loginForm = reactive({
 
 // Formulaire d'inscription
 const registerForm = reactive({
-  type: 'Locateur',
+  type: 'Locataire',
   nom: '',
   email: '',
   telephone: '',
@@ -465,8 +465,8 @@ const forgotPasswordEmail = ref('')
 const redirectToDashboard = (userType) => {
   let redirectPath = '/'
   switch (userType?.toLowerCase()) {
-    case 'locateur':
-      redirectPath = '/locateur'
+    case 'locataire':
+      redirectPath = '/locataire'
       break
     case 'acheteur':
       redirectPath = '/parcelles'

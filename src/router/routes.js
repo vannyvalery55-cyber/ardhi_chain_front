@@ -1,81 +1,42 @@
 const routes = [
-  // Routes avec MainLayout (pour la plupart des pages)
+  // ============ PAGE D'ACCUEIL AVEC MAINLAYOUT ============
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      // Route d'accueil
+      // Seulement la page d'accueil avec le layout
       {
         path: '',
         name: 'home',
-        component: () => import('pages/HomePage.vue')
-      },
-      {
-        path: 'dashboard',
-        name: 'dashboard',
-        component: () => import('pages/BuyerDashboard.vue')
-      },
-      {
-        path: 'property/:id',
-        name: 'property-details',
-        component: () => import('pages/PropertyDetailsPage.vue'),
+        component: () => import('pages/HomePage.vue'),
         meta: {
-          requiresAuth: false // Laisser accessible sans connexion
-        }
-      },
-      // Route : Ajouter Bien
-      {
-        path: 'add-property',
-        name: 'add-property',
-        component: () => import('pages/AddPropertyPage.vue'),
-        meta: {
-          requiresAuth: true, // Nécessite une connexion
-          title: 'Ajouter un bien'
-        }
-      },
-      // Route : Mon Compte
-      {
-        path: 'account',
-        name: 'account',
-        component: () => import('pages/AccountPage.vue'),
-        meta: {
-          requiresAuth: true, // Nécessite une connexion
-          title: 'Mon compte'
+          title: 'Accueil'
         }
       }
     ]
   },
 
-  // Route Wallet SANS MainLayout
-  {
-    path: '/wallet',
-    name: 'Wallet',
-    component: () => import('pages/Wallet.vue'),
-    meta: {
-      title: 'Mon Portefeuille',
-    }
-  },
-
-  // Layout minimal pour l'authentification
+  // ============ LAYOUT D'AUTHENTIFICATION ============
   {
     path: '/auth',
     component: () => import('layouts/AuthLayout.vue'),
     children: [
-      // Route de connexion
+      // Connexion
       {
         path: 'login',
         name: 'login',
         component: () => import('pages/LoginPage.vue'),
         meta: {
-          requiresGuest: true, // Accessible uniquement aux non-connectés
+          requiresGuest: true,
           title: 'Connexion'
         }
       },
-      // Route d'inscription
+      
+      // Inscription
       {
         path: 'register',
         name: 'register',
-        component: () => import('pages/LoginPage.vue'), // Même page que login
+        component: () => import('pages/LoginPage.vue'), // Même composant avec mode inscription
         meta: {
           requiresGuest: true,
           title: 'Inscription'
@@ -84,27 +45,100 @@ const routes = [
     ]
   },
 
-  // Routes indépendantes sans layout
+  // ============ ROUTES SANS LAYOUT (PAGES INDÉPENDANTES) ============
+  
+  // Espace locataire
+  {
+    path: '/locataire',
+    name: 'locataire',
+    component: () => import('pages/LocatairePage.vue'),
+    meta: {
+      title: 'Espace Locataire',
+      requiresAuth: false
+    }
+  },
+  
+  // Dashboard acheteur
+  {
+    path: '/dashboard',
+    name: 'dashboard',
+    component: () => import('pages/BuyerDashboard.vue'),
+    meta: {
+      requiresAuth: true,
+      title: 'Tableau de bord'
+    }
+  },
+  
+  // Détails d'une propriété
+  {
+    path: '/property/:id',
+    name: 'property-details',
+    component: () => import('pages/PropertyDetailsPage.vue'),
+    meta: {
+      requiresAuth: false,
+      title: 'Détails du bien'
+    }
+  },
+  
+  // Ajouter un bien
+  {
+    path: '/add-property',
+    name: 'add-property',
+    component: () => import('pages/AddPropertyPage.vue'),
+    meta: {
+      requiresAuth: true,
+      title: 'Ajouter un bien'
+    }
+  },
+  
+  // Mon compte
+  {
+    path: '/account',
+    name: 'account',
+    component: () => import('pages/AccountPage.vue'),
+    meta: {
+      requiresAuth: true,
+      title: 'Mon compte'
+    }
+  },
+  
+  // Portefeuille
+  {
+    path: '/wallet',
+    name: 'wallet',
+    component: () => import('pages/Wallet.vue'),
+    meta: {
+      title: 'Mon Portefeuille'
+    }
+  },
+  
+  // Parcelles
   {
     path: '/parcelles',
     name: 'parcelles',
-    component: () => import('pages/ParcellesPage.vue')
+    component: () => import('pages/ParcellesPage.vue'),
+    meta: {
+      title: 'Parcelles'
+    }
   },
+  
+  // Détails d'une parcelle
   {
     path: '/parcelle/:id',
     name: 'parcelle-details',
-    component: () => import('pages/ParcelleDetailsPage.vue')
-  },
-  {
-    path: '/properties/:id',
-    name: 'property-details',
-    component: () => import('pages/PropertyDetailsPage.vue')
+    component: () => import('pages/ParcelleDetailsPage.vue'),
+    meta: {
+      title: 'Détails de la parcelle'
+    }
   },
 
-  // Route 404 (doit rester la dernière)
+  // ============ ROUTE 404 (TOUJOURS LA DERNIÈRE) ============
   {
     path: '/:catchAll(.*)*',
-    component: () => import('pages/ErrorNotFound.vue')
+    component: () => import('pages/ErrorNotFound.vue'),
+    meta: {
+      title: 'Page non trouvée'
+    }
   }
 ]
 
