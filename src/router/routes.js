@@ -31,7 +31,7 @@ const routes = [
           title: 'Connexion'
         }
       },
-      
+
       // Inscription
       {
         path: 'register',
@@ -46,7 +46,7 @@ const routes = [
   },
 
   // ============ ROUTES SANS LAYOUT (PAGES INDÉPENDANTES) ============
-  
+
   // Espace locataire
   {
     path: '/locataire',
@@ -57,7 +57,7 @@ const routes = [
       requiresAuth: false
     }
   },
-  
+
   // Dashboard acheteur
   {
     path: '/dashboard',
@@ -68,7 +68,7 @@ const routes = [
       title: 'Tableau de bord'
     }
   },
-  
+
   // Détails d'une propriété
   {
     path: '/property/:id',
@@ -79,7 +79,7 @@ const routes = [
       title: 'Détails du bien'
     }
   },
-  
+
   // Ajouter un bien
   {
     path: '/add-property',
@@ -90,7 +90,7 @@ const routes = [
       title: 'Ajouter un bien'
     }
   },
-  
+
   // Mon compte
   {
     path: '/account',
@@ -101,7 +101,7 @@ const routes = [
       title: 'Mon compte'
     }
   },
-  
+
   // Portefeuille
   {
     path: '/wallet',
@@ -111,7 +111,7 @@ const routes = [
       title: 'Mon Portefeuille'
     }
   },
-  
+
   // Parcelles
   {
     path: '/parcelles',
@@ -121,7 +121,16 @@ const routes = [
       title: 'Parcelles'
     }
   },
-  
+
+  {
+    path: '/proprietaire',
+    name: 'proprietaire',
+    component: () => import('pages/DashboardProprietaire.vue'),
+    meta: {
+      title: 'Propriétaire'
+    }
+  },
+
   // Détails d'une parcelle
   {
     path: '/parcelle/:id',
