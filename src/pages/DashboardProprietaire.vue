@@ -25,6 +25,9 @@
             <div class="text-h5 text-weight-bold">{{ stats.totalProperties || 0 }}</div>
             <div class="text-subtitle2 text-blue-grey-8">Propriétés totales</div>
           </q-card-section>
+          <q-card-actions align="center">
+            <q-btn flat dense color="blue-grey-8" icon="info" @click="showStatsInfo" />
+          </q-card-actions>
         </q-card>
       </div>
 
@@ -42,12 +45,12 @@
         </q-card>
       </div>
 
-      <!-- Terrains -->
+      <!-- Parcelles -->
       <div class="col-6 col-sm-3">
         <q-card class="stat-card bg-amber-1">
           <q-card-section class="text-center">
             <q-icon name="yard" size="40px" color="amber-8" class="q-mb-sm" />
-            <div class="text-h5 text-weight-bold">{{ stats.totalTerrains || 0 }}</div>
+            <div class="text-h5 text-weight-bold">{{ stats.totalParcelles || 0 }}</div>
             <div class="text-subtitle2 text-amber-8">Parcelles</div>
           </q-card-section>
           <q-card-actions align="center">
@@ -61,151 +64,235 @@
         <q-card class="stat-card bg-purple-1">
           <q-card-section class="text-center">
             <q-icon name="payments" size="40px" color="purple-8" class="q-mb-sm" />
-            <div class="text-h5 text-weight-bold">{{ formatCurrency(stats.revenuMensuel || 0) }}</div>
+            <div class="text-h5 text-weight-bold">
+              {{ formatCurrency(stats.revenuMensuel || 0) }}
+            </div>
             <div class="text-subtitle2 text-purple-8">Revenu ce mois</div>
           </q-card-section>
+          <q-card-actions align="center">
+            <q-btn flat dense color="purple-8" icon="trending_up" @click="showRevenueInfo" />
+          </q-card-actions>
         </q-card>
       </div>
     </div>
 
-    <!-- SECTION PROPRIÉTÉS RÉCENTES -->
-    <div class="row q-col-gutter-md q-mb-lg">
+    <!-- MESSAGE SI AUCUNE DONNÉE -->
+    <div
+      v-if="maisonsRecent.length === 0 && parcellesRecent.length === 0"
+      class="text-center q-mb-xl"
+    >
+      <q-card class="bg-blue-grey-1">
+        <q-card-section>
+          <q-icon name="info" size="60px" color="blue-grey-6" class="q-mb-md" />
+          <div class="text-h5 text-blue-grey-8">Bienvenue sur votre dashboard !</div>
+          <div class="text-subtitle1 q-mt-sm q-mb-lg">
+            Commencez par ajouter vos premières propriétés
+          </div>
+
+          <div class="row justify-center q-gutter-md">
+            <q-btn
+              color="primary"
+              icon="house"
+              label="Ajouter une maison"
+              @click="showModal('maison')"
+            />
+            <q-btn
+              color="orange"
+              icon="yard"
+              label="Ajouter une parcelle"
+              @click="showModal('parcelle')"
+            />
+          </div>
+
+          <div class="q-mt-lg text-blue-grey-7">
+            <div class="text-caption">
+              💡 <strong>Conseil :</strong> Vous pouvez ajouter plusieurs images pour chaque
+              propriété
+            </div>
+            <div class="text-caption">
+              📱 <strong>Astuce :</strong> Utilisez le bouton flottant en bas à droite pour un accès
+              rapide
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
+    </div>
+
+    <!-- SECTION PROPRIÉTÉS RÉCENTES (seulement si données) -->
+    <div
+      v-if="maisonsRecent.length > 0 || parcellesRecent.length > 0"
+      class="row q-col-gutter-md q-mb-lg"
+    >
       <!-- Maisons récentes -->
-      <div class="col-12 col-lg-6">
+      <div class="col-12 col-lg-6" v-if="maisonsRecent.length > 0">
         <q-card>
           <q-card-section>
             <div class="row items-center q-mb-md">
               <div class="col">
                 <div class="text-h6">Mes maisons récentes</div>
-                <div class="text-subtitle2">Gestion complète de vos maisons</div>
+                <div class="text-subtitle2">
+                  {{ maisonsRecent.length }} maison(s) enregistrée(s)
+                </div>
               </div>
               <div class="col-auto">
-                <q-btn color="primary" icon="add" label="Nouvelle maison" @click="showModal('maison')" />
+                <q-btn color="primary" icon="add" label="Nouvelle" @click="showModal('maison')" />
               </div>
             </div>
 
-            <div v-if="maisonsRecent.length > 0">
-              <div v-for="maison in maisonsRecent" :key="maison.id" class="q-mb-md">
-                <q-card class="property-card">
-                  <q-card-section>
-                    <div class="row items-center">
-                      <div class="col">
-                        <div class="text-h6 text-weight-bold">{{ maison.titre }}</div>
-                        <div class="text-subtitle2">
-                          <q-icon name="location_on" size="16px" />
-                          {{ maison.ville }}, {{ maison.quartier }}
-                        </div>
-                      </div>
-                      <div class="col-auto">
-                        <q-badge :color="getStatusColor(maison.statut)">
-                          {{ getStatusLabel(maison.statut) }}
-                        </q-badge>
+            <div v-for="maison in maisonsRecent" :key="maison.id" class="q-mb-md">
+              <q-card class="property-card">
+                <q-card-section>
+                  <div class="row items-center">
+                    <div class="col">
+                      <div class="text-h6 text-weight-bold ellipsis">{{ maison.titre }}</div>
+                      <div class="text-subtitle2">
+                        <q-icon name="location_on" size="16px" />
+                        Parcelle ID: {{ maison.parcelle_id }}
+                        <span v-if="maison.parcelle_details">
+                          ({{ maison.parcelle_details.ville }},
+                          {{ maison.parcelle_details.quartier }})
+                        </span>
                       </div>
                     </div>
+                    <div class="col-auto">
+                      <q-badge :color="getStatusColor(maison.statut)">
+                        {{ getStatusLabel(maison.statut) }}
+                      </q-badge>
+                    </div>
+                  </div>
 
-                    <div class="row items-center q-mt-sm">
-                      <div class="col-4">
-                        <div class="row items-center">
-                          <q-icon name="square_foot" size="16px" class="text-grey q-mr-xs" />
-                          <span class="text-caption">{{ maison.surface_totale }} m²</span>
-                        </div>
-                      </div>
-                      <div class="col-4">
-                        <div class="row items-center">
-                          <q-icon name="bed" size="16px" class="text-grey q-mr-xs" />
-                          <span class="text-caption">{{ maison.nombre_chambres }} ch.</span>
-                        </div>
-                      </div>
-                      <div class="col-4">
-                        <div class="text-h6 text-primary text-right">
-                          {{ formatCurrency(maison.prix_vente || maison.prix_location) }}
-                        </div>
+                  <div class="row items-center q-mt-sm">
+                    <div class="col-4">
+                      <div class="row items-center">
+                        <q-icon name="square_foot" size="16px" class="text-grey q-mr-xs" />
+                        <span class="text-caption">{{ maison.surface_totale || '0' }} m²</span>
                       </div>
                     </div>
-                  </q-card-section>
-                  <q-card-actions align="right">
-                    <q-btn flat dense icon="visibility" @click="viewProperty(maison, 'maison')" />
-                    <q-btn flat dense icon="edit" @click="editProperty(maison, 'maison')" />
-                    <q-btn flat dense icon="delete" color="negative" @click="confirmDelete(maison, 'maison')" />
-                  </q-card-actions>
-                </q-card>
-              </div>
+                    <div class="col-4">
+                      <div class="row items-center">
+                        <q-icon name="bed" size="16px" class="text-grey q-mr-xs" />
+                        <span class="text-caption">{{ maison.nombre_chambres || '0' }} ch.</span>
+                      </div>
+                    </div>
+                    <div class="col-4">
+                      <div class="text-h6 text-primary text-right">
+                        {{ formatCurrency(maison.prix_vente || maison.prix_location || 0) }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div v-if="maison.type_maison" class="text-caption q-mt-xs">
+                    <q-icon name="category" size="14px" class="q-mr-xs" />
+                    {{ getMaisonTypeLabel(maison.type_maison) }} •
+                    {{ getStandingLabel(maison.standing) }}
+                    <span v-if="maison.etat" class="q-ml-sm">
+                      • État: {{ getEtatLabel(maison.etat) }}
+                    </span>
+                  </div>
+                </q-card-section>
+                <q-card-actions align="right">
+                  <q-btn flat dense icon="visibility" @click="viewProperty(maison, 'maison')" />
+                  <q-btn flat dense icon="edit" @click="editProperty(maison, 'maison')" />
+                  <q-btn
+                    flat
+                    dense
+                    icon="delete"
+                    color="negative"
+                    @click="confirmDelete(maison, 'maison')"
+                  />
+                </q-card-actions>
+              </q-card>
             </div>
-            <div v-else class="text-center q-pa-lg">
-              <q-icon name="house" size="60px" color="grey-4" />
-              <div class="text-h6 q-mt-md">Aucune maison enregistrée</div>
-              <div class="text-caption q-mb-md">Commencez par ajouter votre première maison</div>
-              <q-btn color="primary" label="Ajouter une maison" @click="showModal('maison')" class="q-mt-sm" />
+
+            <div v-if="stats.totalMaisons > maisonsRecent.length" class="text-center q-mt-md">
+              <q-btn
+                flat
+                color="primary"
+                :label="`Voir toutes les maisons (${stats.totalMaisons})`"
+                @click="router.push('/maisons')"
+              />
             </div>
           </q-card-section>
         </q-card>
       </div>
 
       <!-- Parcelles récentes -->
-      <div class="col-12 col-lg-6">
+      <div class="col-12 col-lg-6" v-if="parcellesRecent.length > 0">
         <q-card>
           <q-card-section>
             <div class="row items-center q-mb-md">
               <div class="col">
                 <div class="text-h6">Mes parcelles récentes</div>
-                <div class="text-subtitle2">Gestion de vos terrains et parcelles</div>
+                <div class="text-subtitle2">
+                  {{ parcellesRecent.length }} parcelle(s) enregistrée(s)
+                </div>
               </div>
               <div class="col-auto">
-                <q-btn color="primary" icon="add" label="Nouvelle parcelle" @click="showModal('parcelle')" />
+                <q-btn color="primary" icon="add" label="Nouvelle" @click="showModal('parcelle')" />
               </div>
             </div>
 
-            <div v-if="parcellesRecent.length > 0">
-              <div v-for="parcelle in parcellesRecent" :key="parcelle.id" class="q-mb-md">
-                <q-card class="property-card">
-                  <q-card-section>
-                    <div class="row items-center">
-                      <div class="col">
-                        <div class="text-h6 text-weight-bold">{{ parcelle.titre }}</div>
-                        <div class="text-subtitle2">
-                          <q-icon name="location_on" size="16px" />
-                          {{ parcelle.ville }}, {{ parcelle.quartier }}
-                        </div>
-                      </div>
-                      <div class="col-auto">
-                        <q-badge :color="getStatusColor(parcelle.statut)">
-                          {{ getStatusLabel(parcelle.statut) }}
-                        </q-badge>
+            <div v-for="parcelle in parcellesRecent" :key="parcelle.id" class="q-mb-md">
+              <q-card class="property-card">
+                <q-card-section>
+                  <div class="row items-center">
+                    <div class="col">
+                      <div class="text-h6 text-weight-bold ellipsis">{{ parcelle.titre }}</div>
+                      <div class="text-subtitle2">
+                        <q-icon name="location_on" size="16px" />
+                        {{ parcelle.ville }}, {{ parcelle.quartier }}
                       </div>
                     </div>
+                    <div class="col-auto">
+                      <q-badge :color="getStatusColor(parcelle.statut)">
+                        {{ getStatusLabel(parcelle.statut) }}
+                      </q-badge>
+                    </div>
+                  </div>
 
-                    <div class="row items-center q-mt-sm">
-                      <div class="col-6">
-                        <div class="row items-center">
-                          <q-icon name="square_foot" size="16px" class="text-grey q-mr-xs" />
-                          <span class="text-caption">{{ parcelle.superficie }} m²</span>
-                        </div>
-                      </div>
-                      <div class="col-6">
-                        <div class="text-h6 text-primary text-right">
-                          {{ formatCurrency(parcelle.prix) }}
-                        </div>
+                  <div class="row items-center q-mt-sm">
+                    <div class="col-6">
+                      <div class="row items-center">
+                        <q-icon name="square_foot" size="16px" class="text-grey q-mr-xs" />
+                        <span class="text-caption">{{ parcelle.superficie || '0' }} m²</span>
                       </div>
                     </div>
+                    <div class="col-6">
+                      <div class="text-h6 text-primary text-right">
+                        {{ formatCurrency(parcelle.prix_vente || parcelle.prix || 0) }}
+                      </div>
+                    </div>
+                  </div>
 
-                    <div class="text-caption q-mt-xs">
-                      <q-icon name="terrain" size="14px" class="q-mr-xs" />
-                      Type: {{ getTerrainTypeLabel(parcelle.type_terrain) }}
-                    </div>
-                  </q-card-section>
-                  <q-card-actions align="right">
-                    <q-btn flat dense icon="visibility" @click="viewProperty(parcelle, 'parcelle')" />
-                    <q-btn flat dense icon="edit" @click="editProperty(parcelle, 'parcelle')" />
-                    <q-btn flat dense icon="delete" color="negative" @click="confirmDelete(parcelle, 'parcelle')" />
-                  </q-card-actions>
-                </q-card>
-              </div>
+                  <div class="text-caption q-mt-xs">
+                    <q-icon name="terrain" size="14px" class="q-mr-xs" />
+                    Type: {{ getTerrainTypeLabel(parcelle.type_terrain) }}
+                    <span v-if="parcelle.role" class="q-ml-sm">
+                      • Rôle: {{ getRoleLabel(parcelle.role) }}
+                    </span>
+                  </div>
+                </q-card-section>
+                <q-card-actions align="right">
+                  <q-btn flat dense icon="visibility" @click="viewProperty(parcelle, 'parcelle')" />
+                  <q-btn flat dense icon="edit" @click="editProperty(parcelle, 'parcelle')" />
+                  <q-btn
+                    flat
+                    dense
+                    icon="delete"
+                    color="negative"
+                    @click="confirmDelete(parcelle, 'parcelle')"
+                  />
+                </q-card-actions>
+              </q-card>
             </div>
-            <div v-else class="text-center q-pa-lg">
-              <q-icon name="yard" size="60px" color="grey-4" />
-              <div class="text-h6 q-mt-md">Aucune parcelle enregistrée</div>
-              <div class="text-caption q-mb-md">Ajoutez vos premiers terrains</div>
-              <q-btn color="primary" label="Ajouter une parcelle" @click="showModal('parcelle')" class="q-mt-sm" />
+
+            <div v-if="stats.totalParcelles > parcellesRecent.length" class="text-center q-mt-md">
+              <q-btn
+                flat
+                color="primary"
+                :label="`Voir toutes les parcelles (${stats.totalParcelles})`"
+                @click="router.push('/parcelles')"
+              />
             </div>
           </q-card-section>
         </q-card>
@@ -214,12 +301,7 @@
 
     <!-- BOUTONS RAPIDES FLOTTANTS -->
     <q-page-sticky position="bottom-right" :offset="[18, 18]">
-      <q-fab
-        color="primary"
-        icon="add"
-        direction="up"
-        label="Actions rapides"
-      >
+      <q-fab color="primary" icon="add" direction="up" label="Ajouter">
         <q-fab-action
           color="primary"
           icon="house"
@@ -270,7 +352,7 @@
                     <q-input
                       v-model="newMaison.titre"
                       label="Titre de la maison *"
-                      :rules="[val => !!val || 'Champ requis']"
+                      :rules="[(val) => !!val || 'Champ requis']"
                       outlined
                       dense
                     />
@@ -286,34 +368,37 @@
                   </div>
                 </div>
 
-                <!-- Localisation -->
-                <div class="text-subtitle2 q-mt-md">Localisation</div>
+                <!-- Parcelle associée -->
+                <div class="text-subtitle2 q-mt-md">Parcelle associée</div>
                 <div class="row q-col-gutter-sm">
-                  <div class="col-12 col-md-4">
-                    <q-input
-                      v-model="newMaison.ville"
-                      label="Ville *"
-                      :rules="[val => !!val || 'Champ requis']"
+                  <div class="col-12">
+                    <q-select
+                      v-model="newMaison.parcelle_id"
+                      :options="parcellesOptions"
+                      label="Sélectionner une parcelle *"
+                      emit-value
+                      map-options
                       outlined
                       dense
-                    />
-                  </div>
-                  <div class="col-12 col-md-4">
-                    <q-input
-                      v-model="newMaison.quartier"
-                      label="Quartier *"
-                      :rules="[val => !!val || 'Champ requis']"
-                      outlined
-                      dense
-                    />
-                  </div>
-                  <div class="col-12 col-md-4">
-                    <q-input
-                      v-model="newMaison.avenue"
-                      label="Avenue"
-                      outlined
-                      dense
-                    />
+                      clearable
+                      :rules="[(val) => !!val || 'Une parcelle est requise']"
+                    >
+                      <template v-slot:option="scope">
+                        <q-item v-bind="scope.itemProps">
+                          <q-item-section>
+                            <q-item-label>{{ scope.opt.label }}</q-item-label>
+                            <q-item-label caption>{{ scope.opt.description }}</q-item-label>
+                          </q-item-section>
+                        </q-item>
+                      </template>
+                      <template v-slot:no-option>
+                        <q-item>
+                          <q-item-section class="text-grey">
+                            Aucune parcelle disponible. Ajoutez d'abord une parcelle.
+                          </q-item-section>
+                        </q-item>
+                      </template>
+                    </q-select>
                   </div>
                 </div>
 
@@ -326,7 +411,7 @@
                       label="Surface (m²) *"
                       type="number"
                       min="0"
-                      :rules="[val => !!val || 'Champ requis']"
+                      :rules="[(val) => !!val || 'Champ requis']"
                       outlined
                       dense
                     />
@@ -363,34 +448,44 @@
                   </div>
                 </div>
 
-                <!-- Type, standing et offre -->
+                <!-- Type, standing, état et offre -->
                 <div class="row q-col-gutter-sm q-mt-sm">
-                  <div class="col-12 col-md-4">
+                  <div class="col-12 col-md-3">
                     <q-select
                       v-model="newMaison.type_maison"
                       :options="maisonTypes"
                       label="Type de maison *"
-                      :rules="[val => !!val || 'Champ requis']"
+                      :rules="[(val) => !!val || 'Champ requis']"
                       outlined
                       dense
                     />
                   </div>
-                  <div class="col-12 col-md-4">
+                  <div class="col-12 col-md-3">
                     <q-select
                       v-model="newMaison.standing"
                       :options="maisonStandings"
                       label="Standing *"
-                      :rules="[val => !!val || 'Champ requis']"
+                      :rules="[(val) => !!val || 'Champ requis']"
                       outlined
                       dense
                     />
                   </div>
-                  <div class="col-12 col-md-4">
+                  <div class="col-12 col-md-3">
+                    <q-select
+                      v-model="newMaison.etat"
+                      :options="maisonEtats"
+                      label="État *"
+                      :rules="[(val) => !!val || 'Champ requis']"
+                      outlined
+                      dense
+                    />
+                  </div>
+                  <div class="col-12 col-md-3">
                     <q-select
                       v-model="newMaison.type_offre"
                       :options="maisonOffreTypes"
                       label="Type d'offre *"
-                      :rules="[val => !!val || 'Champ requis']"
+                      :rules="[(val) => !!val || 'Champ requis']"
                       outlined
                       dense
                     />
@@ -400,7 +495,12 @@
                 <!-- Prix selon le type d'offre -->
                 <div class="text-subtitle2 q-mt-md">Prix</div>
                 <div class="row q-col-gutter-sm">
-                  <div class="col-12 col-md-6" v-if="newMaison.type_offre === 'vente' || newMaison.type_offre === 'vente_location'">
+                  <div
+                    class="col-12 col-md-6"
+                    v-if="
+                      newMaison.type_offre === 'vente' || newMaison.type_offre === 'vente_location'
+                    "
+                  >
                     <q-input
                       v-model="newMaison.prix_vente"
                       label="Prix de vente (€)"
@@ -411,7 +511,13 @@
                       dense
                     />
                   </div>
-                  <div class="col-12 col-md-6" v-if="newMaison.type_offre === 'location' || newMaison.type_offre === 'vente_location'">
+                  <div
+                    class="col-12 col-md-6"
+                    v-if="
+                      newMaison.type_offre === 'location' ||
+                      newMaison.type_offre === 'vente_location'
+                    "
+                  >
                     <q-input
                       v-model="newMaison.prix_location"
                       label="Prix location mensuel (€)"
@@ -447,7 +553,7 @@
                     v-model="newMaison.statut"
                     :options="propertyStatuses"
                     label="Statut *"
-                    :rules="[val => !!val || 'Champ requis']"
+                    :rules="[(val) => !!val || 'Champ requis']"
                     outlined
                     dense
                   />
@@ -469,9 +575,15 @@
                 </q-file>
 
                 <div v-if="maisonImagesPreview.length > 0" class="q-mt-md">
-                  <div class="text-caption q-mb-sm">{{ maisonImagesPreview.length }} image(s) sélectionnée(s)</div>
+                  <div class="text-caption q-mb-sm">
+                    {{ maisonImagesPreview.length }} image(s) sélectionnée(s)
+                  </div>
                   <div class="row q-col-gutter-sm">
-                    <div class="col-4 col-sm-3" v-for="(preview, index) in maisonImagesPreview" :key="index">
+                    <div
+                      class="col-4 col-sm-3"
+                      v-for="(preview, idx) in maisonImagesPreview"
+                      :key="idx"
+                    >
                       <q-img :src="preview" style="height: 100px" class="rounded-borders">
                         <q-btn
                           icon="close"
@@ -480,7 +592,7 @@
                           round
                           dense
                           class="absolute-top-right"
-                          @click="removeMaisonImage(index)"
+                          @click="removeMaisonImage(idx)"
                         />
                       </q-img>
                     </div>
@@ -498,7 +610,7 @@
                     <q-input
                       v-model="newParcelle.titre"
                       label="Titre de la parcelle *"
-                      :rules="[val => !!val || 'Champ requis']"
+                      :rules="[(val) => !!val || 'Champ requis']"
                       outlined
                       dense
                     />
@@ -521,7 +633,7 @@
                     <q-input
                       v-model="newParcelle.ville"
                       label="Ville *"
-                      :rules="[val => !!val || 'Champ requis']"
+                      :rules="[(val) => !!val || 'Champ requis']"
                       outlined
                       dense
                     />
@@ -530,53 +642,54 @@
                     <q-input
                       v-model="newParcelle.quartier"
                       label="Quartier *"
-                      :rules="[val => !!val || 'Champ requis']"
+                      :rules="[(val) => !!val || 'Champ requis']"
                       outlined
                       dense
                     />
                   </div>
                   <div class="col-12 col-md-4">
-                    <q-input
-                      v-model="newParcelle.avenue"
-                      label="Avenue"
-                      outlined
-                      dense
-                    />
+                    <q-input v-model="newParcelle.avenue" label="Avenue" outlined dense />
                   </div>
                 </div>
 
-                <!-- Caractéristiques -->
-                <div class="text-subtitle2 q-mt-md">Caractéristiques</div>
+                <!-- Numéro et caractéristiques -->
                 <div class="row q-col-gutter-sm">
+                  <div class="col-6 col-md-3">
+                    <q-input v-model="newParcelle.numero" label="Numéro" outlined dense />
+                  </div>
                   <div class="col-6 col-md-4">
                     <q-input
                       v-model="newParcelle.superficie"
                       label="Superficie (m²) *"
                       type="number"
                       min="0"
-                      :rules="[val => !!val || 'Champ requis']"
+                      :rules="[(val) => !!val || 'Champ requis']"
                       outlined
                       dense
                     />
                   </div>
-                  <div class="col-6 col-md-4">
+                  <div class="col-12 col-md-5">
                     <q-select
                       v-model="newParcelle.type_terrain"
                       :options="parcelleTypes"
                       label="Type de terrain *"
-                      :rules="[val => !!val || 'Champ requis']"
+                      :rules="[(val) => !!val || 'Champ requis']"
                       outlined
                       dense
                     />
                   </div>
-                  <div class="col-6 col-md-4">
+                </div>
+
+                <!-- Prix -->
+                <div class="row q-col-gutter-sm">
+                  <div class="col-12">
                     <q-input
-                      v-model="newParcelle.prix"
-                      label="Prix (€) *"
+                      v-model="newParcelle.prix_vente"
+                      label="Prix de vente (€) *"
                       prefix="€"
                       type="number"
                       min="0"
-                      :rules="[val => !!val || 'Champ requis']"
+                      :rules="[(val) => !!val || 'Champ requis', (val) => val > 0 || 'Le prix doit être supérieur à 0']"
                       outlined
                       dense
                     />
@@ -607,16 +720,28 @@
                   </div>
                 </div>
 
-                <!-- Statut -->
-                <div class="q-mt-md">
-                  <q-select
-                    v-model="newParcelle.statut"
-                    :options="propertyStatuses"
-                    label="Statut *"
-                    :rules="[val => !!val || 'Champ requis']"
-                    outlined
-                    dense
-                  />
+                <!-- Statut et Rôle -->
+                <div class="row q-col-gutter-sm q-mt-md">
+                  <div class="col-12 col-md-6">
+                    <q-select
+                      v-model="newParcelle.statut"
+                      :options="propertyStatuses"
+                      label="Statut *"
+                      :rules="[(val) => !!val || 'Champ requis']"
+                      outlined
+                      dense
+                    />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <q-select
+                      v-model="newParcelle.role"
+                      :options="roleOptions"
+                      label="Rôle *"
+                      :rules="[(val) => !!val || 'Champ requis']"
+                      outlined
+                      dense
+                    />
+                  </div>
                 </div>
 
                 <!-- Images -->
@@ -635,9 +760,15 @@
                 </q-file>
 
                 <div v-if="parcelleImagesPreview.length > 0" class="q-mt-md">
-                  <div class="text-caption q-mb-sm">{{ parcelleImagesPreview.length }} image(s) sélectionnée(s)</div>
+                  <div class="text-caption q-mb-sm">
+                    {{ parcelleImagesPreview.length }} image(s) sélectionnée(s)
+                  </div>
                   <div class="row q-col-gutter-sm">
-                    <div class="col-4 col-sm-3" v-for="(preview, index) in parcelleImagesPreview" :key="index">
+                    <div
+                      class="col-4 col-sm-3"
+                      v-for="(preview, idx) in parcelleImagesPreview"
+                      :key="idx"
+                    >
                       <q-img :src="preview" style="height: 100px" class="rounded-borders">
                         <q-btn
                           icon="close"
@@ -646,7 +777,7 @@
                           round
                           dense
                           class="absolute-top-right"
-                          @click="removeParcelleImage(index)"
+                          @click="removeParcelleImage(idx)"
                         />
                       </q-img>
                     </div>
@@ -706,7 +837,7 @@ const stats = ref({
   totalProperties: 0,
   totalMaisons: 0,
   totalParcelles: 0,
-  revenuMensuel: 0
+  revenuMensuel: 0,
 })
 
 // Listes de propriétés
@@ -714,25 +845,27 @@ const maisonsRecent = ref([])
 const parcellesRecent = ref([])
 const loadingProperties = ref(false)
 
+// Options pour parcelle dans formulaire maison
+const parcellesOptions = ref([])
+
 // Données utilisateur (récupéré du localStorage)
 const user = ref({
   id: null,
-  nom: "",
-  email: "",
-  type: ""
+  nom: '',
+  email: '',
+  type: '',
 })
 
 // Données formulaire MAISON
 const newMaison = ref({
   titre: '',
   description: '',
-  ville: '',
-  quartier: '',
-  avenue: '',
+  parcelle_id: '',
   surface_totale: '',
   nombre_chambres: '',
   nombre_salles_bain: '',
   etage: '',
+  etat: 'bon_etat', // AJOUTÉ
   type_maison: '',
   standing: '',
   type_offre: 'vente',
@@ -743,7 +876,7 @@ const newMaison = ref({
   piscine: false,
   climatisation: false,
   statut: 'disponible',
-  utilisateur_id: null // Sera rempli automatiquement
+  utilisateur_id: null,
 })
 
 // Données formulaire PARCELLE
@@ -753,13 +886,15 @@ const newParcelle = ref({
   ville: '',
   quartier: '',
   avenue: '',
+  numero: '',
   superficie: '',
   type_terrain: '',
-  prix: '',
+  prix_vente: '',
   latitude: '',
   longitude: '',
   statut: 'disponible',
-  utilisateur_id: null // Sera rempli automatiquement
+  utilisateur_id: null,
+  role: 'proprietaire', // AJOUTÉ
 })
 
 // Images
@@ -771,9 +906,11 @@ const parcelleImagesPreview = ref([])
 // Options des sélecteurs
 const maisonTypes = ['villa', 'appartement', 'duplex', 'studio', 'fermette', 'contemporaine']
 const maisonStandings = ['luxe', 'haut_de_gamme', 'standard', 'economique']
+const maisonEtats = ['neuf', 'bon_etat', 'renovation', 'ancien'] // AJOUTÉ
 const maisonOffreTypes = ['vente', 'location', 'vente_location']
 const parcelleTypes = ['urbain', 'agricole', 'residentiel', 'commercial']
 const propertyStatuses = ['disponible', 'loué', 'vendu', 'en_negociation', 'maintenance']
+const roleOptions = ['proprietaire', 'commissionnaire'] // AJOUTÉ
 
 // Fonctions utilitaires
 const formatCurrency = (amount) => {
@@ -783,34 +920,151 @@ const formatCurrency = (amount) => {
 
 const getStatusColor = (statut) => {
   const colors = {
-    'disponible': 'positive',
-    'loué': 'primary',
-    'vendu': 'info',
-    'en_negociation': 'warning',
-    'maintenance': 'negative'
+    disponible: 'positive',
+    loué: 'primary',
+    vendu: 'info',
+    en_negociation: 'warning',
+    maintenance: 'negative',
   }
   return colors[statut] || 'grey'
 }
 
 const getStatusLabel = (statut) => {
   const labels = {
-    'disponible': 'Disponible',
-    'loué': 'Loué',
-    'vendu': 'Vendu',
-    'en_negociation': 'En négociation',
-    'maintenance': 'En maintenance'
+    disponible: 'Disponible',
+    loué: 'Loué',
+    vendu: 'Vendu',
+    en_negociation: 'En négociation',
+    maintenance: 'En maintenance',
   }
   return labels[statut] || statut
 }
 
 const getTerrainTypeLabel = (type) => {
   const labels = {
-    'urbain': 'Urbain',
-    'agricole': 'Agricole',
-    'residentiel': 'Résidentiel',
-    'commercial': 'Commercial'
+    urbain: 'Urbain',
+    agricole: 'Agricole',
+    residentiel: 'Résidentiel',
+    commercial: 'Commercial',
   }
   return labels[type] || type
+}
+
+const getMaisonTypeLabel = (type) => {
+  const labels = {
+    villa: 'Villa',
+    appartement: 'Appartement',
+    duplex: 'Duplex',
+    studio: 'Studio',
+    fermette: 'Fermette',
+    contemporaine: 'Contemporaine',
+  }
+  return labels[type] || type
+}
+
+const getStandingLabel = (standing) => {
+  const labels = {
+    luxe: 'Luxe',
+    haut_de_gamme: 'Haut de gamme',
+    standard: 'Standard',
+    economique: 'Économique',
+  }
+  return labels[standing] || standing
+}
+
+const getEtatLabel = (etat) => {
+  const labels = {
+    neuf: 'Neuf',
+    bon_etat: 'Bon état',
+    renovation: 'À rénover',
+    ancien: 'Ancien',
+  }
+  return labels[etat] || etat
+}
+
+const getRoleLabel = (role) => {
+  const labels = {
+    proprietaire: 'Propriétaire',
+    commissionnaire: 'Commissionnaire',
+  }
+  return labels[role] || role
+}
+
+// Fonction pour récupérer les détails de la parcelle
+const getParcelleDetails = async (parcelleId) => {
+  try {
+    const token = getAuthToken()
+    const response = await fetch(`${API_BASE_URL}/parcelles/${parcelleId}`, {
+      headers: {
+        Authorization: token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (response.ok) {
+      return await response.json()
+    }
+  } catch (error) {
+    console.error('Erreur récupération parcelle:', error)
+  }
+  return null
+}
+
+// Fonction pour charger les parcelles de l'utilisateur
+const fetchUserParcelles = async () => {
+  try {
+    const token = getAuthToken()
+    const userId = user.value.id
+
+    if (!userId) {
+      parcellesOptions.value = []
+      return
+    }
+
+    const response = await fetch(`${API_BASE_URL}/parcelles/utilisateur/${userId}`, {
+      headers: {
+        Authorization: token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (response.ok) {
+      const responseData = await response.json()
+      // Vérifier si la réponse est un tableau
+      const parcelles = Array.isArray(responseData) ? responseData : responseData.data || []
+
+      parcellesOptions.value = parcelles.map((p) => ({
+        label: `${p.titre} (${p.ville}, ${p.quartier})`,
+        value: p.id,
+        description: `${p.superficie} m² - ${formatCurrency(p.prix_vente)}`,
+      }))
+      console.log('Parcelles chargées pour sélection:', parcellesOptions.value)
+    } else {
+      console.warn('Erreur API pour chargement parcelles:', response.status)
+      parcellesOptions.value = []
+    }
+  } catch (error) {
+    console.error('Erreur chargement parcelles:', error)
+    parcellesOptions.value = []
+  }
+}
+
+// Fonctions d'information
+const showStatsInfo = () => {
+  $q.dialog({
+    title: 'Statistiques',
+    message:
+      'Ces chiffres représentent le nombre total de vos propriétés enregistrées dans le système.',
+    ok: 'Compris',
+  })
+}
+
+const showRevenueInfo = () => {
+  $q.dialog({
+    title: 'Revenus',
+    message: 'Le revenu mensuel est calculé à partir des loyers actifs et des ventes en cours.',
+    ok: 'Compris',
+  })
 }
 
 // Récupérer l'utilisateur du localStorage
@@ -823,43 +1077,89 @@ const getUserFromLocalStorage = () => {
         id: parsedUser.id || parsedUser.user_id,
         nom: parsedUser.nom || parsedUser.name || 'Propriétaire',
         email: parsedUser.email || '',
-        type: parsedUser.type || 'proprietaire'
+        type: parsedUser.type || 'proprietaire',
       }
       console.log('Utilisateur récupéré:', user.value)
     } else {
       console.warn('Aucun utilisateur trouvé dans le localStorage')
+      // Pour le développement, créer un utilisateur de test
+      user.value = {
+        id: 1,
+        nom: 'Propriétaire Test',
+        email: 'test@example.com',
+        type: 'proprietaire',
+      }
+      console.log('Utilisateur de test créé:', user.value)
     }
   } catch (error) {
-    console.error('Erreur lors de la récupération de l\'utilisateur:', error)
+    console.error("Erreur lors de la récupération de l'utilisateur:", error)
+    // Créer un utilisateur de test en cas d'erreur
+    user.value = {
+      id: 1,
+      nom: 'Propriétaire',
+      email: '',
+      type: 'proprietaire',
+    }
   }
 }
 
 // Gestion de la modale
-const showModal = (type = 'maison') => {
+const showModal = async (type = 'maison') => {
   propertyType.value = type
   modalMode.value = 'add'
   currentPropertyId.value = null
   resetFormData()
+
+  // Charger les parcelles si on ajoute/modifie une maison
+  if (type === 'maison') {
+    await fetchUserParcelles()
+  }
+
   showPropertyModal.value = true
 }
 
-const editProperty = (property, type) => {
+const editProperty = async (property, type) => {
   propertyType.value = type
   modalMode.value = 'edit'
   currentPropertyId.value = property.id
 
   if (type === 'maison') {
-    Object.keys(newMaison.value).forEach(key => {
-      if (property[key] !== undefined) {
+    // Charger les parcelles avant de remplir le formulaire
+    await fetchUserParcelles()
+
+    Object.keys(newMaison.value).forEach((key) => {
+      if (property[key] !== undefined && property[key] !== null) {
         newMaison.value[key] = property[key]
       }
     })
+
+    // S'assurer que les champs requis ont des valeurs par défaut
+    if (!newMaison.value.etat) {
+      newMaison.value.etat = 'bon_etat'
+    }
+    if (!newMaison.value.statut) {
+      newMaison.value.statut = 'disponible'
+    }
+
+    // S'assurer que l'ID utilisateur est présent
+    newMaison.value.utilisateur_id = user.value.id
   } else {
-    Object.keys(newParcelle.value).forEach(key => {
-      if (property[key] !== undefined) {
+    Object.keys(newParcelle.value).forEach((key) => {
+      if (property[key] !== undefined && property[key] !== null) {
         newParcelle.value[key] = property[key]
       }
     })
+
+    // S'assurer que les champs requis ont des valeurs par défaut
+    if (!newParcelle.value.role) {
+      newParcelle.value.role = 'proprietaire'
+    }
+    if (!newParcelle.value.statut) {
+      newParcelle.value.statut = 'disponible'
+    }
+
+    // S'assurer que l'ID utilisateur est présent
+    newParcelle.value.utilisateur_id = user.value.id
   }
 
   showPropertyModal.value = true
@@ -874,13 +1174,12 @@ const resetFormData = () => {
   newMaison.value = {
     titre: '',
     description: '',
-    ville: '',
-    quartier: '',
-    avenue: '',
+    parcelle_id: '',
     surface_totale: '',
     nombre_chambres: '',
     nombre_salles_bain: '',
     etage: '',
+    etat: 'bon_etat', // AJOUTÉ
     type_maison: '',
     standing: '',
     type_offre: 'vente',
@@ -891,7 +1190,7 @@ const resetFormData = () => {
     piscine: false,
     climatisation: false,
     statut: 'disponible',
-    utilisateur_id: user.value.id
+    utilisateur_id: user.value.id,
   }
 
   newParcelle.value = {
@@ -900,13 +1199,15 @@ const resetFormData = () => {
     ville: '',
     quartier: '',
     avenue: '',
+    numero: '',
     superficie: '',
     type_terrain: '',
-    prix: '',
+    prix_vente: '',
     latitude: '',
     longitude: '',
     statut: 'disponible',
-    utilisateur_id: user.value.id
+    utilisateur_id: user.value.id,
+    role: 'proprietaire', // AJOUTÉ
   }
 
   maisonImages.value = []
@@ -919,7 +1220,7 @@ const resetFormData = () => {
 watch(maisonImages, (newImages) => {
   maisonImagesPreview.value = []
   if (newImages && newImages.length > 0) {
-    Array.from(newImages).forEach(file => {
+    Array.from(newImages).forEach((file) => {
       const reader = new FileReader()
       reader.onload = (e) => {
         maisonImagesPreview.value.push(e.target.result)
@@ -932,7 +1233,7 @@ watch(maisonImages, (newImages) => {
 watch(parcelleImages, (newImages) => {
   parcelleImagesPreview.value = []
   if (newImages && newImages.length > 0) {
-    Array.from(newImages).forEach(file => {
+    Array.from(newImages).forEach((file) => {
       const reader = new FileReader()
       reader.onload = (e) => {
         parcelleImagesPreview.value.push(e.target.result)
@@ -942,17 +1243,17 @@ watch(parcelleImages, (newImages) => {
   }
 })
 
-const removeMaisonImage = (index) => {
-  maisonImagesPreview.value.splice(index, 1)
+const removeMaisonImage = (idx) => {
+  maisonImagesPreview.value.splice(idx, 1)
   const newImages = Array.from(maisonImages.value)
-  newImages.splice(index, 1)
+  newImages.splice(idx, 1)
   maisonImages.value = newImages
 }
 
-const removeParcelleImage = (index) => {
-  parcelleImagesPreview.value.splice(index, 1)
+const removeParcelleImage = (idx) => {
+  parcelleImagesPreview.value.splice(idx, 1)
   const newImages = Array.from(parcelleImages.value)
-  newImages.splice(index, 1)
+  newImages.splice(idx, 1)
   parcelleImages.value = newImages
 }
 
@@ -961,6 +1262,8 @@ const getAuthToken = () => {
   const token = localStorage.getItem('token') || localStorage.getItem('auth_token')
   if (!token) {
     console.warn('Aucun token JWT trouvé dans le localStorage')
+    // Pour le développement, retourner un token de test
+    return 'test-token-for-development'
   }
   return token
 }
@@ -981,13 +1284,22 @@ const submitPropertyForm = async () => {
 
     if (propertyType.value === 'maison') {
       // Validation maison
-      if (!newMaison.value.titre || !newMaison.value.ville || !newMaison.value.quartier || !newMaison.value.surface_totale) {
-        throw new Error('Veuillez remplir tous les champs obligatoires')
+      if (
+        !newMaison.value.titre ||
+        !newMaison.value.surface_totale ||
+        !newMaison.value.parcelle_id ||
+        !newMaison.value.etat // AJOUTÉ
+      ) {
+        throw new Error('Veuillez remplir tous les champs obligatoires (titre, surface, parcelle, état)')
       }
 
       // Ajouter les données du formulaire
-      Object.keys(newMaison.value).forEach(key => {
-        if (newMaison.value[key] !== '' && newMaison.value[key] !== null && newMaison.value[key] !== undefined) {
+      Object.keys(newMaison.value).forEach((key) => {
+        if (
+          newMaison.value[key] !== '' &&
+          newMaison.value[key] !== null &&
+          newMaison.value[key] !== undefined
+        ) {
           // Convertir les booléens en chaînes
           if (typeof newMaison.value[key] === 'boolean') {
             formData.append(key, newMaison.value[key] ? 'true' : 'false')
@@ -997,12 +1309,17 @@ const submitPropertyForm = async () => {
         }
       })
 
+      // S'ASSURER QUE LE CHAMP ETAT EST BIEN ENVOYÉ
+      if (!formData.has('etat')) {
+        formData.append('etat', newMaison.value.etat || 'bon_etat')
+      }
+
       // Ajouter l'ID utilisateur
       formData.append('utilisateur_id', user.value.id)
 
       // Ajouter les images
       if (maisonImages.value && maisonImages.value.length > 0) {
-        Array.from(maisonImages.value).forEach((file, index) => {
+        Array.from(maisonImages.value).forEach((file) => {
           formData.append('images', file)
         })
       }
@@ -1014,26 +1331,49 @@ const submitPropertyForm = async () => {
       } else {
         apiUrl = `${API_BASE_URL}/maisons`
       }
-
     } else {
       // Validation parcelle
-      if (!newParcelle.value.titre || !newParcelle.value.ville || !newParcelle.value.quartier || !newParcelle.value.superficie || !newParcelle.value.prix) {
-        throw new Error('Veuillez remplir tous les champs obligatoires')
+      if (
+        !newParcelle.value.titre ||
+        !newParcelle.value.ville ||
+        !newParcelle.value.quartier ||
+        !newParcelle.value.superficie ||
+        !newParcelle.value.type_terrain ||
+        !newParcelle.value.prix_vente ||
+        !newParcelle.value.role || // AJOUTÉ
+        !user.value.id
+      ) {
+        throw new Error('Veuillez remplir tous les champs obligatoires (titre, ville, quartier, superficie, type terrain, prix, rôle)')
+      }
+
+      // Vérifier que le prix est valide
+      const prix = parseFloat(newParcelle.value.prix_vente)
+      if (isNaN(prix) || prix <= 0) {
+        throw new Error('Le prix de vente doit être un nombre positif')
       }
 
       // Ajouter les données du formulaire
-      Object.keys(newParcelle.value).forEach(key => {
-        if (newParcelle.value[key] !== '' && newParcelle.value[key] !== null && newParcelle.value[key] !== undefined) {
+      Object.keys(newParcelle.value).forEach((key) => {
+        if (
+          newParcelle.value[key] !== '' &&
+          newParcelle.value[key] !== null &&
+          newParcelle.value[key] !== undefined
+        ) {
           formData.append(key, newParcelle.value[key])
         }
       })
+
+      // S'ASSURER QUE LE CHAMP ROLE EST BIEN ENVOYÉ
+      if (!formData.has('role')) {
+        formData.append('role', newParcelle.value.role || 'proprietaire')
+      }
 
       // Ajouter l'ID utilisateur
       formData.append('utilisateur_id', user.value.id)
 
       // Ajouter les images
       if (parcelleImages.value && parcelleImages.value.length > 0) {
-        Array.from(parcelleImages.value).forEach((file, index) => {
+        Array.from(parcelleImages.value).forEach((file) => {
           formData.append('images', file)
         })
       }
@@ -1050,25 +1390,49 @@ const submitPropertyForm = async () => {
     // Récupérer le token JWT
     const token = getAuthToken()
 
+    // DEBUG: Voir tout ce qui est dans le FormData
+    console.log('=== DEBUG FormData ===')
+    const formDataEntries = {}
+    for (let pair of formData.entries()) {
+      formDataEntries[pair[0]] = pair[1]
+    }
+    console.log('Données envoyées:', formDataEntries)
+    console.log('=== Fin DEBUG ===')
+
     // Options pour la requête fetch
     const requestOptions = {
       method: method,
       headers: {
-        'Authorization': token ? `Bearer ${token}` : ''
-        // Note: Ne pas mettre 'Content-Type' pour FormData, le navigateur le fera automatiquement avec boundary
+        Authorization: token ? `Bearer ${token}` : '',
       },
-      body: formData
+      body: formData,
     }
 
     console.log(`Envoi ${method} vers:`, apiUrl)
-    console.log('Données envoyées:', Object.fromEntries(formData))
 
     // Envoyer la requête
     const response = await fetch(apiUrl, requestOptions)
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: 'Erreur inconnue' }))
-      throw new Error(errorData.message || `Erreur ${response.status}: ${response.statusText}`)
+      const errorText = await response.text()
+      let errorMessage = `Erreur ${response.status}: ${response.statusText}`
+
+      try {
+        const errorData = JSON.parse(errorText)
+        errorMessage = errorData.message || errorData.error || errorMessage
+
+        // Si l'erreur contient des détails spécifiques
+        if (errorData.errors) {
+          const errorDetails = Object.entries(errorData.errors)
+            .map(([field, message]) => `${field}: ${message}`)
+            .join(', ')
+          errorMessage += ` (${errorDetails})`
+        }
+      } catch {
+        errorMessage = errorText || errorMessage
+      }
+
+      throw new Error(errorMessage)
     }
 
     const result = await response.json()
@@ -1080,23 +1444,23 @@ const submitPropertyForm = async () => {
     // Notification de succès
     $q.notify({
       type: 'positive',
-      message: modalMode.value === 'edit'
-        ? `${propertyType.value === 'maison' ? 'Maison' : 'Parcelle'} modifié(e) avec succès`
-        : `${propertyType.value === 'maison' ? 'Maison' : 'Parcelle'} ajouté(e) avec succès`,
+      message:
+        modalMode.value === 'edit'
+          ? `${propertyType.value === 'maison' ? 'Maison' : 'Parcelle'} modifié(e) avec succès`
+          : `${propertyType.value === 'maison' ? 'Maison' : 'Parcelle'} ajouté(e) avec succès`,
       icon: 'check_circle',
-      timeout: 3000
+      timeout: 3000,
     })
 
     // Recharger les données
     await fetchData()
-
   } catch (error) {
     console.error('Erreur API:', error)
     $q.notify({
       type: 'negative',
       message: error.message || 'Erreur lors de la sauvegarde. Veuillez réessayer.',
       icon: 'error',
-      timeout: 5000
+      timeout: 5000,
     })
   } finally {
     loadingProperty.value = false
@@ -1113,82 +1477,177 @@ const fetchProperties = async () => {
 
     if (!userId) {
       console.warn('ID utilisateur manquant pour charger les propriétés')
+      loadDemoData()
       return
     }
 
     // Charger les maisons
-    const maisonsResponse = await fetch(`${API_BASE_URL}/maisons/utilisateur/${userId}`, {
-      headers: {
-        'Authorization': token ? `Bearer ${token}` : '',
-        'Content-Type': 'application/json'
-      }
-    })
+    try {
+      const maisonsResponse = await fetch(`${API_BASE_URL}/maisons/utilisateur/${userId}`, {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : '',
+          'Content-Type': 'application/json',
+        },
+      })
 
-    if (maisonsResponse.ok) {
-      const maisonsData = await maisonsResponse.json()
-      maisonsRecent.value = Array.isArray(maisonsData) ? maisonsData.slice(0, 3) : []
-      stats.value.totalMaisons = maisonsRecent.value.length
-    } else {
-      console.warn('Erreur lors du chargement des maisons:', maisonsResponse.status)
+      if (maisonsResponse.ok) {
+        const responseData = await maisonsResponse.json()
+        // Vérifier si la réponse est un tableau
+        const maisonsData = Array.isArray(responseData) ? responseData : responseData.data || []
+
+        if (maisonsData.length > 0) {
+          // Récupérer les détails des parcelles pour chaque maison
+          const maisonsAvecDetails = await Promise.all(
+            maisonsData.map(async (maison) => {
+              if (maison.parcelle_id) {
+                const parcelleDetails = await getParcelleDetails(maison.parcelle_id)
+                return {
+                  ...maison,
+                  parcelle_details: parcelleDetails,
+                  ville: parcelleDetails?.ville || 'Non spécifié',
+                  quartier: parcelleDetails?.quartier || 'Non spécifié',
+                }
+              }
+              return maison
+            }),
+          )
+
+          maisonsRecent.value = maisonsAvecDetails.slice(0, 3)
+          stats.value.totalMaisons = maisonsData.length
+          console.log('Maisons chargées avec détails parcelle:', maisonsRecent.value)
+        } else {
+          maisonsRecent.value = []
+          stats.value.totalMaisons = 0
+          console.log('Aucune maison trouvée pour cet utilisateur')
+        }
+      } else {
+        console.warn('Erreur lors du chargement des maisons:', maisonsResponse.status)
+        maisonsRecent.value = []
+      }
+    } catch (maisonError) {
+      console.warn('Erreur réseau pour maisons:', maisonError)
+      maisonsRecent.value = []
     }
 
     // Charger les parcelles
-    const parcellesResponse = await fetch(`${API_BASE_URL}/parcelles/utilisateur/${userId}`, {
-      headers: {
-        'Authorization': token ? `Bearer ${token}` : '',
-        'Content-Type': 'application/json'
-      }
-    })
+    try {
+      const parcellesResponse = await fetch(`${API_BASE_URL}/parcelles/utilisateur/${userId}`, {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : '',
+          'Content-Type': 'application/json',
+        },
+      })
 
-    if (parcellesResponse.ok) {
-      const parcellesData = await parcellesResponse.json()
-      parcellesRecent.value = Array.isArray(parcellesData) ? parcellesData.slice(0, 3) : []
-      stats.value.totalParcelles = parcellesRecent.value.length
-    } else {
-      console.warn('Erreur lors du chargement des parcelles:', parcellesResponse.status)
+      if (parcellesResponse.ok) {
+        const responseData = await parcellesResponse.json()
+        // Vérifier si la réponse est un tableau
+        const parcellesData = Array.isArray(responseData) ? responseData : responseData.data || []
+
+        parcellesRecent.value = parcellesData.slice(0, 3)
+        stats.value.totalParcelles = parcellesData.length
+        console.log('Parcelles chargées:', parcellesRecent.value)
+      } else {
+        console.warn('Erreur lors du chargement des parcelles:', parcellesResponse.status)
+        parcellesRecent.value = []
+      }
+    } catch (parcelleError) {
+      console.warn('Erreur réseau pour parcelles:', parcelleError)
+      parcellesRecent.value = []
     }
 
     // Mettre à jour le total
     stats.value.totalProperties = stats.value.totalMaisons + stats.value.totalParcelles
 
+    // Calculer le revenu mensuel (somme des prix de location des maisons disponibles)
+    if (maisonsRecent.value.length > 0) {
+      const revenu = maisonsRecent.value.reduce((total, maison) => {
+        if (maison.statut === 'loué' || maison.statut === 'disponible') {
+          return total + (maison.prix_location || 0)
+        }
+        return total
+      }, 0)
+      stats.value.revenuMensuel = revenu
+    } else {
+      stats.value.revenuMensuel = 0
+    }
+
+    // Si aucune donnée n'a été chargée, afficher les données de démo
+    if (maisonsRecent.value.length === 0 && parcellesRecent.value.length === 0) {
+      console.log('Aucune donnée chargée, utilisation des données de démo')
+      loadDemoData()
+    }
   } catch (error) {
     console.error('Erreur lors du chargement des propriétés:', error)
-    // Données de démo en cas d'erreur
-    maisonsRecent.value = [
-      {
-        id: 1,
-        titre: "Villa Moderne à Katindo",
-        ville: "Goma",
-        quartier: "Katindo",
-        surface_totale: 250,
-        nombre_chambres: 4,
-        prix_vente: 250000,
-        prix_location: 1500,
-        statut: "disponible",
-        type_maison: "villa",
-        standing: "luxe"
-      }
-    ]
-
-    parcellesRecent.value = [
-      {
-        id: 1,
-        titre: "Terrain résidentiel à Mabanga",
-        ville: "Goma",
-        quartier: "Mabanga",
-        superficie: 500,
-        type_terrain: "residentiel",
-        prix: 75000,
-        statut: "disponible"
-      }
-    ]
-
-    stats.value.totalMaisons = maisonsRecent.value.length
-    stats.value.totalParcelles = parcellesRecent.value.length
-    stats.value.totalProperties = stats.value.totalMaisons + stats.value.totalParcelles
+    // Charger des données de démo en cas d'erreur
+    loadDemoData()
   } finally {
     loadingProperties.value = false
   }
+}
+
+// Données de démo pour le développement
+const loadDemoData = () => {
+  console.log('Chargement des données de démo...')
+
+  // Parcelles de démo
+  parcellesRecent.value = [
+    {
+      id: 2,
+      titre: 'my parcelle',
+      ville: 'goma',
+      quartier: 'mabanga sud',
+      avenue: 'kulanga',
+      numero: '15A',
+      superficie: 2787389,
+      type_terrain: 'urbain',
+      prix_vente: 2900000,
+      statut: 'disponible',
+      role: 'proprietaire', // AJOUTÉ
+      description: 'un bon parcelle au bord du lac',
+      images: [
+        '/uploads/parcelles/parcelle-1764439344495-972877967.jpg',
+        '/uploads/parcelles/parcelle-1764439344502-760093764.jpg',
+      ],
+    },
+  ]
+
+  // Maisons de démo avec référence à parcelle
+  maisonsRecent.value = [
+    {
+      id: 4,
+      titre: 'Asta la vista',
+      description: 'une maison plus performante',
+      parcelle_id: 2,
+      parcelle_details: parcellesRecent.value[0],
+      nombre_chambres: 7,
+      nombre_salles_bain: 2,
+      surface_totale: 130,
+      etat: 'bon_etat', // AJOUTÉ
+      type_maison: 'contemporaine',
+      standing: 'standard',
+      jardin: false,
+      garage: false,
+      piscine: false,
+      prix_vente: null,
+      prix_location: 500,
+      type_offre: 'vente',
+      statut: 'disponible',
+      ville: 'goma',
+      quartier: 'mabanga sud',
+      images: [
+        '/uploads/parcelles/parcelle-1764799179478-582326921.PNG',
+        '/uploads/parcelles/parcelle-1764799179488-604925661.PNG',
+        '/uploads/parcelles/parcelle-1764799179498-751304246.PNG',
+      ],
+    },
+  ]
+
+  stats.value.totalMaisons = maisonsRecent.value.length
+  stats.value.totalParcelles = parcellesRecent.value.length
+  stats.value.totalProperties = stats.value.totalMaisons + stats.value.totalParcelles
+  stats.value.revenuMensuel = 500 // Loyer de la maison de démo
+
+  console.log('Données de démo chargées:', stats.value)
 }
 
 // Autres fonctions
@@ -1202,26 +1661,27 @@ const confirmDelete = async (property, type) => {
     title: 'Confirmer la suppression',
     message: `Êtes-vous sûr de vouloir supprimer "${property.titre}" ?`,
     cancel: true,
-    persistent: true
+    persistent: true,
   }).onOk(async () => {
     try {
       const token = getAuthToken()
-      const apiUrl = type === 'maison'
-        ? `${API_BASE_URL}/maisons/${property.id}`
-        : `${API_BASE_URL}/parcelles/${property.id}`
+      const apiUrl =
+        type === 'maison'
+          ? `${API_BASE_URL}/maisons/${property.id}`
+          : `${API_BASE_URL}/parcelles/${property.id}`
 
       const response = await fetch(apiUrl, {
         method: 'DELETE',
         headers: {
-          'Authorization': token ? `Bearer ${token}` : '',
-          'Content-Type': 'application/json'
-        }
+          Authorization: token ? `Bearer ${token}` : '',
+          'Content-Type': 'application/json',
+        },
       })
 
       if (response.ok) {
         $q.notify({
           type: 'positive',
-          message: 'Propriété supprimée avec succès'
+          message: 'Propriété supprimée avec succès',
         })
         await fetchData()
       } else {
@@ -1231,7 +1691,7 @@ const confirmDelete = async (property, type) => {
       console.error('Erreur:', error)
       $q.notify({
         type: 'negative',
-        message: 'Erreur lors de la suppression'
+        message: 'Erreur lors de la suppression',
       })
     }
   })
@@ -1247,7 +1707,7 @@ const refreshData = () => {
   $q.notify({
     type: 'info',
     message: 'Données actualisées',
-    timeout: 2000
+    timeout: 2000,
   })
 }
 
@@ -1277,14 +1737,17 @@ onMounted(async () => {
 .dashboard-proprietaire {
   padding: 16px;
   background: #f5f5f5;
+  min-height: 100vh;
 }
 
 .stat-card {
   transition: transform 0.3s ease;
   cursor: pointer;
+  height: 100%;
 
   &:hover {
     transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
   }
 }
 
@@ -1293,8 +1756,8 @@ onMounted(async () => {
   border: 1px solid #e0e0e0;
 
   &:hover {
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    border-color: #1976D2;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-color: #1976d2;
   }
 }
 
@@ -1333,5 +1796,16 @@ onMounted(async () => {
     min-width: 100%;
     margin: 0;
   }
+}
+
+/* Améliorations visuelles */
+.text-subtitle2 {
+  opacity: 0.8;
+}
+
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

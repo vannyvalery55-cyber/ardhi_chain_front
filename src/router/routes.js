@@ -123,6 +123,19 @@ const routes = [
   },
 
   {
+    path: '/parcelles/:id',
+    name: 'ParcelleDetails',
+    component: () => import('pages/ParcelleDetails.vue'),
+    meta: { requiresAuth: false }
+  },
+  {
+    path: '/maisons/:id',
+    name: 'MaisonDetails',
+    component: () => import('pages/MaisonDetails.vue'),
+    meta: { requiresAuth: false }
+  },
+
+  {
     path: '/proprietaire',
     name: 'proprietaire',
     component: () => import('pages/DashboardProprietaire.vue'),
